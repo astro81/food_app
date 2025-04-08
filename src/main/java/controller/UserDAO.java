@@ -90,4 +90,50 @@ public class UserDAO {
         // Return null if no matching user found
         return null;
     }
+
+    /**
+     * Updates user information in the database.
+     *
+     * @param currentEmail The current email of the user (used to identify the record)
+     * @param updatedUser The UserModel object containing updated information
+     * @return boolean indicating success (true) or failure (false) of the update
+     * @throws SQLException if there's a database access error
+     */
+    public boolean updateUser(String currentEmail, UserModel updatedUser) throws SQLException {
+        String sqlQuery = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement pst = connection.prepareStatement(sqlQuery)) {
+
+            pst.setString(1, updatedUser.getUserName());
+            pst.setString(2, updatedUser.getUserPasswd());
+            pst.setString(3, updatedUser.getUserPhone());
+            pst.setString(4, updatedUser.getUserAddress());
+            pst.setString(5, currentEmail);
+
+            return pst.executeUpdate() > 0;
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
+        }
+    }
+
+    /**
+     * Deletes a user from the database.
+     *
+     * @param userMail The email of the user to delete
+     * @return boolean indicating success (true) or failure (false) of the deletion
+     * @throws SQLException if there's a database access error
+     */
+    public boolean deleteUser(String userMail) throws SQLException {
+        String sqlQuery = "DELETE FROM users WHERE user_mail = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement pst = connection.prepareStatement(sqlQuery)) {
+
+            pst.setString(1, userMail);
+            return pst.executeUpdate() > 0;
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
+        }
+    }
 }
