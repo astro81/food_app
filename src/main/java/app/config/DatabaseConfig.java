@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class AppConfig {
+public class DatabaseConfig {
     private static final String PROPERTIES_FILE = "config.properties";
     private static final Properties properties = loadProperties();
 
     private static Properties loadProperties() {
         Properties props = new Properties();
-        try (InputStream input = AppConfig.class.getClassLoader()
+        try (InputStream input = DatabaseConfig.class.getClassLoader()
                 .getResourceAsStream(PROPERTIES_FILE)) {
             if (input == null) {
                 throw new RuntimeException("Unable to find " + PROPERTIES_FILE);
@@ -20,6 +20,14 @@ public class AppConfig {
             throw new RuntimeException("Error loading configuration", ex);
         }
         return props;
+    }
+
+    public static String getDriver() {
+        String driver = properties.getProperty("db.driver");
+        if (driver == null || driver.isBlank()) {
+            throw new RuntimeException("Database Driver is not configured");
+        }
+        return driver;
     }
 
     public static String getDbUrl() {

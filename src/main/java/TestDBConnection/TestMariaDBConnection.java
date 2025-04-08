@@ -1,6 +1,6 @@
 package TestDBConnection;
 
-import app.config.AppConfig;
+import app.config.DatabaseConfig;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,9 +19,9 @@ public class TestMariaDBConnection {
     }
 
     private static void openDatabaseConnection() throws SQLException {
-        String url = AppConfig.getDbUrl();
-        String username = AppConfig.getDbUsername();
-        String password = AppConfig.getDbPassword();
+        String url = DatabaseConfig.getDbUrl();
+        String username = DatabaseConfig.getDbUsername();
+        String password = DatabaseConfig.getDbPassword();
 
         System.out.println("Connecting to database");
 
