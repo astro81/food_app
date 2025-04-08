@@ -1,104 +1,144 @@
 package servlets.user.login;
 
 import java.io.*;
-
 import controller.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.UserModel;
-
 import java.sql.SQLException;
 
 /**
- * Servlet implementation for handling user login functionality.
- * This servlet processes login requests, authenticates users against the database,
- * and manages user sessions upon successful authentication.
+ * Servlet implementation for user authentication and session management.
+ * <p>
+ * This servlet handles both the display of the login form (GET) and processing
+ * of login credentials (POST). Key functionalities include:
+ * <ul>
+ *   <li>Rendering the login interface</li>
+ *   <li>Validating user credentials against the database</li>
+ *   <li>Establishing secure user sessions</li>
+ *   <li>Handling authentication failures and database errors</li>
+ * </ul>
+ *
+ * <p><strong>Security Note:</strong>
+ * Implements basic authentication flow but does not include brute-force protection
+ * or password complexity requirements.
  */
-@WebServlet(name = "LoginServlet", value = "/user/login")
+@WebServlet(
+        name = "LoginServlet",
+        value = "/user/login",
+        description = "Handles user authentication and session creation"
+)
 public class LoginServlet extends HttpServlet {
-    /** Serial version UID for serialization */
     @Serial
     private static final long serialVersionUID = 1L;
 
+    // View configuration
     private static final String LOGIN_PAGE = "/WEB-INF/user/login.jsp";
-    private static final String PROFILE_PAGE = "/WEB-INF/user/welcome.jsp";
+    private static final String PROFILE_PAGE = "/WEB-INF/user/profile.jsp";
 
-    /** Data Access Object for user operations */
+    // Request parameter names
+    private static final String PARAM_EMAIL = "user_mail";
+    private static final String PARAM_PASSWORD = "user_passwd";
+
+    // Session attribute names
+    private static final String ATTR_USER = "user";
+    private static final String ATTR_NOTIFICATION = "NOTIFICATION";
+
+    // Notification messages
+    private static final String MSG_AUTH_FAILED = "Invalid email or password!";
+    private static final String MSG_DB_ERROR = "Database Error: ";
+    private static final String MSG_GENERIC_ERROR = "Error: ";
+
+    // Dependencies
     private UserDAO userDao;
 
     /**
-     * Initializes the servlet and creates a new UserDAO instance.
-     * This method is called once when the servlet is first loaded.
+     * Initializes the servlet and its data access components.
+     * <p>
+     * Creates a new UserDAO instance for database operations. This method is
+     * guaranteed to be called once before the servlet handles any requests.
      */
+    @Override
     public void init() {
-        userDao = new UserDAO();
+        this.userDao = new UserDAO();
     }
 
     /**
-     * Handles HTTP GET requests to the login endpoint.
-     * Redirects users to the login page.
+     * Handles HTTP GET requests for login page display.
+     * <p>
+     * Simply forwards to the login view without any processing. The JSP should
+     * handle any notification messages present in the request attributes.
      *
-     * @param request The HttpServletRequest object containing client request
-     * @param response The HttpServletResponse object for sending response
-     * @throws IOException If an input or output error occurs
-     * @throws ServletException If a servlet-specific error occurs
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs during view rendering
      */
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+            throws ServletException, IOException {
         request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
     }
 
     /**
-     * Handles HTTP POST requests containing login form data.
-     * Authenticates user credentials and creates a session upon successful login.
+     * Handles HTTP POST requests containing authentication credentials.
+     * <p>
+     * Processes the login attempt through these steps:
+     * <ol>
+     *   <li>Extracts email and password from request parameters</li>
+     *   <li>Validates credentials against user database</li>
+     *   <li>On success: Creates new session with user attributes</li>
+     *   <li>On failure: Returns to login page with error message</li>
+     * </ol>
      *
-     * @param request The HttpServletRequest object containing client request
-     * @param response The HttpServletResponse object for sending response
-     * @throws IOException If an input or output error occurs
-     * @throws ServletException If a servlet-specific error occurs
+     * @param request  the HttpServletRequest object containing credentials
+     * @param response the HttpServletResponse object for redirection
+     * @throws ServletException if credential processing fails
+     * @throws IOException if redirection or forwarding fails
      */
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
-        // Extract user credentials from request parameters
-        String userMail = request.getParameter("user_mail");
-        String userPasswd = request.getParameter("user_passwd");
+            throws ServletException, IOException {
+        // Extract credentials from request
+        String userMail = request.getParameter(PARAM_EMAIL);
+        String userPasswd = request.getParameter(PARAM_PASSWORD);
 
         try {
-            // Attempt to authenticate user with provided credentials using the instance method
+            // Attempt authentication
             UserModel user = userDao.loginUser(userMail, userPasswd);
 
             if (user != null) {
-                // User authenticated successfully - create session
+                // Authentication success - create session
                 HttpSession session = request.getSession();
-                session.setAttribute("user", user);
+                session.setAttribute(ATTR_USER, user);
 
-                // Redirect to welcome page
+                // Forward to profile page (consider redirect for POST-REDIRECT-GET)
                 request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
             } else {
-                // Authentication failed - return to login page with error message
-                request.setAttribute("NOTIFICATION", "Invalid email or password!");
+                // Authentication failure
+                request.setAttribute(ATTR_NOTIFICATION, MSG_AUTH_FAILED);
                 request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
             }
-
         } catch (SQLException e) {
-            // Handle database-specific exceptions
-            e.printStackTrace();
-            request.setAttribute("NOTIFICATION", "Database Error: " + e.getMessage());
+            // Database error handling
+            request.setAttribute(ATTR_NOTIFICATION, MSG_DB_ERROR + e.getMessage());
             request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
         } catch (Exception e) {
-            // Handle other exceptions
-            e.printStackTrace();
-            request.setAttribute("NOTIFICATION", "Error: " + e.getMessage());
+            // Generic error handling
+            request.setAttribute(ATTR_NOTIFICATION, MSG_GENERIC_ERROR + e.getMessage());
             request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
         }
     }
 
     /**
-     * Cleans up resources when the servlet is being destroyed.
-     * This method is called once when the servlet is unloaded.
+     * Cleans up resources during servlet destruction.
+     * <p>
+     * Currently no resources require explicit cleanup. Method maintained for
+     * future compatibility and to match servlet lifecycle documentation.
      */
+    @Override
     public void destroy() {
-        // Clean up resources if needed
+        // No resources to clean up in current implementation
     }
 }

@@ -6,48 +6,99 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
 /**
- * Handles user logout functionality by invalidating the current session
- * and redirecting to the login page.
+ * Servlet implementation for secure user session termination.
+ * <p>
+ * This servlet handles the logout process by:
+ * <ul>
+ *   <li>Invalidating the current HTTP session and all associated data</li>
+ *   <li>Clearing authentication tokens</li>
+ *   <li>Preventing session fixation attacks</li>
+ *   <li>Redirecting to login page with clean session state</li>
+ * </ul>
  *
- * Security Features:
- * - Proper session invalidation
- * - Safe redirect after logout
- * - Protection against session fixation attacks
+ * <p><strong>Security Features:</strong>
+ * <ul>
+ *   <li>No new session creation during logout process</li>
+ *   <li>Complete session data destruction</li>
+ *   <li>Context-aware redirect path construction</li>
+ *   <li>Protection against session fixation attacks</li>
+ * </ul>
  */
-@WebServlet(name = "LogoutServlet", value = "/user/logout")
+@WebServlet(
+        name = "LogoutServlet",
+        value = "/user/logout",
+        description = "Handles secure session termination and user logout"
+)
 public class LogoutServlet extends HttpServlet {
     @Serial
     private static final long serialVersionUID = 1L;
 
-//    private static final String loginPagePath = "/user/login.jsp";
+    // Configuration constants
+    private static final String LOGIN_PATH = "/user/login";
 
     /**
-     * Handles the HTTP GET request for user logout.
+     * Handles HTTP GET requests for user logout.
+     * <p>
+     * Implements secure logout procedure:
+     * <ol>
+     *   <li>Retrieves existing session without creating new one (false parameter)</li>
+     *   <li>Invalidates session if one exists (destroys all session data)</li>
+     *   <li>Constructs context-aware redirect path</li>
+     *   <li>Performs client-side redirect to login page</li>
+     * </ol>
      *
-     * Process Flow:
-     * 1. Retrieves the current session (if exists) without creating a new one
-     * 2. Invalidates the session to clear all user data
-     * 3. Redirects to login page with a fresh session
+     * <p><strong>Security Note:</strong>
+     * The session.invalidate() call is critical for preventing session fixation
+     * attacks and ensuring complete cleanup of authentication artifacts.
      *
-     * @param request The HttpServletRequest object containing client request
-     * @param response The HttpServletResponse object for sending responses
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException if redirect operation fails
      */
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String LOGIN_PAGE = request.getContextPath() + "/user/login";
+        // Construct redirect path using context to ensure correct application root
+        String loginPage = request.getContextPath() + LOGIN_PATH;
 
-        // Get existing session without creating a new one (false parameter)
+        // Retrieve existing session without creating new one
         HttpSession session = request.getSession(false);
 
-        // If session exists, invalidate it to clear all attributes
+        // Invalidate session if exists
         if (session != null) {
-            session.invalidate();  // Critical security step
+            session.invalidate();  // Security-critical operation
         }
 
-        // Redirect to login page after logout
-        response.sendRedirect(LOGIN_PAGE);
+        // Redirect to login page (client-side redirect)
+        response.sendRedirect(loginPage);
+    }
+
+    /**
+     * Ensures consistent logout behavior for HTTP POST requests.
+     * <p>
+     * Simply delegates to doGet() to maintain single code path for logout logic.
+     *
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if redirect operation fails
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
+
+    /**
+     * Cleanup method called during servlet destruction.
+     * <p>
+     * Currently no resources require explicit cleanup. Maintained for
+     * future compatibility and consistent servlet lifecycle management.
+     */
+    @Override
+    public void destroy() {
+        // No resources to clean up in current implementation
     }
 }
