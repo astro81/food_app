@@ -60,7 +60,7 @@
         <p><strong>Address:</strong> <%= user.getUserAddress() %></p>
     </div>
 
-    <a href="logout" class="logout-btn">Logout</a>
+    <a href="${pageContext.request.contextPath}/user/logout" class="logout-btn">Logout</a>
     <% } %>
 </div>
 </body>

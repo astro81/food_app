@@ -14,10 +14,12 @@ import model.UserModel;
  * @WebServlet - Marks this class as a servlet and maps it to a URL pattern
  * HttpServlet - Base class for HTTP servlets in Jakarta EE
  */
-@WebServlet(name = "RegistrationServlet", value = "/register")
+@WebServlet(name = "RegistrationServlet", value = "/user/register")
 public class RegistrationServlet extends HttpServlet {
     @Serial
     private static final long serialVersionUID = 1L;  // Version control for serialization
+
+    private static final String REGISTRATION_PAGE = "/WEB-INF/user/register.jsp";
 
     private UserDAO userDAO;  // DAO for database operations
 
@@ -42,7 +44,8 @@ public class RegistrationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Redirect to registration JSP page
-        response.sendRedirect("register.jsp");
+        request.getRequestDispatcher(REGISTRATION_PAGE).forward(request, response);
+
     }
 
     /**
@@ -80,7 +83,8 @@ public class RegistrationServlet extends HttpServlet {
         }
 
         // Forward back to registration page with notification
-        request.getRequestDispatcher("register.jsp").forward(request, response);
+        request.getRequestDispatcher(REGISTRATION_PAGE).forward(request, response);
+
     }
 
     /**

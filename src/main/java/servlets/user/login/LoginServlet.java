@@ -15,11 +15,14 @@ import java.sql.SQLException;
  * This servlet processes login requests, authenticates users against the database,
  * and manages user sessions upon successful authentication.
  */
-@WebServlet(name = "LoginServlet", value = "/login")
+@WebServlet(name = "LoginServlet", value = "/user/login")
 public class LoginServlet extends HttpServlet {
     /** Serial version UID for serialization */
     @Serial
     private static final long serialVersionUID = 1L;
+
+    private static final String LOGIN_PAGE = "/WEB-INF/user/login.jsp";
+    private static final String PROFILE_PAGE = "/WEB-INF/user/welcome.jsp";
 
     /** Data Access Object for user operations */
     private UserDAO userDao;
@@ -43,7 +46,7 @@ public class LoginServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        response.sendRedirect("login.jsp");
+        request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
     }
 
     /**
@@ -71,23 +74,23 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("user", user);
 
                 // Redirect to welcome page
-                response.sendRedirect("welcome.jsp");
+                request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
             } else {
                 // Authentication failed - return to login page with error message
                 request.setAttribute("NOTIFICATION", "Invalid email or password!");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
+                request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
             }
 
         } catch (SQLException e) {
             // Handle database-specific exceptions
             e.printStackTrace();
             request.setAttribute("NOTIFICATION", "Database Error: " + e.getMessage());
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
         } catch (Exception e) {
             // Handle other exceptions
             e.printStackTrace();
             request.setAttribute("NOTIFICATION", "Error: " + e.getMessage());
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
         }
     }
 

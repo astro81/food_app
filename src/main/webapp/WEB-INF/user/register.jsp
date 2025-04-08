@@ -81,7 +81,7 @@
     </div>
     <% } %>
 
-    <form action="register" method="post">
+    <form action="${pageContext.request.contextPath}/user/register" method="post">
         <div class="form-group">
             <label for="userName">Full Name:</label>
             <input type="text" id="userName" name="user_name" required>
@@ -108,7 +108,8 @@
         </div>
 
         <div class="login-link" style="text-align: center; margin-top: 15px;">
-            Already have an account? <a href="login.jsp">Login here</a>
+            Already have an account?
+            <a href="${pageContext.request.contextPath}/user/login">Login here</a>
         </div>
 
         <button type="submit">Register</button>

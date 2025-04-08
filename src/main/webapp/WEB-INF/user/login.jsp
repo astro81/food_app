@@ -79,7 +79,7 @@
   </div>
   <% } %>
 
-  <form action="login" method="post">
+  <form action="${pageContext.request.contextPath}/user/login" method="post">
     <div class="form-group">
       <label for="email">Email:</label>
       <input type="email" id="email" name="user_mail" required>
@@ -94,7 +94,8 @@
   </form>
 
   <div class="register-link">
-    Don't have an account? <a href="register.jsp">Register here</a>
+    Don't have an account?
+    <a href="${pageContext.request.contextPath}/user/register">Register here</a>
   </div>
 </div>
 </body>
