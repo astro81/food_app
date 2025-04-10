@@ -63,7 +63,6 @@ public class MenuItemDAO {
                 menuItems.add(item);
             }
 
-            System.out.println("dao menu" + menuItems);
         } catch (ClassNotFoundException e) {
             throw new SQLException("Database driver not found", e);
         }

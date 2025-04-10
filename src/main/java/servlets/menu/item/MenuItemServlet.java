@@ -91,7 +91,6 @@ public class MenuItemServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             List<MenuItemModel> menuItems = menuItemDAO.getAllMenuItems();
-            System.out.println("menu" + menuItems);
             request.setAttribute("menuItems", menuItems);
             request.getRequestDispatcher(MENU_PAGE).forward(request, response);
         } catch (SQLException e) {
