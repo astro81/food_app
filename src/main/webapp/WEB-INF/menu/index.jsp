@@ -8,6 +8,18 @@
         th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
         .success { color: green; }
         .error { color: red; }
+        .add-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .add-btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -23,29 +35,8 @@
     <c:remove var="errorMessage" scope="session"/>
 </c:if>
 
-<!-- Add New Item Form -->
-<h2>Add New Menu Item</h2>
-<form action="menu" method="post">
-    <input type="hidden" name="action" value="create">
-    <label>Name: <input type="text" name="food_name" required></label>
-    <label>Description: <input type="text" name="food_description"></label>
-    <label>Price: <input type="number" step="0.01" name="food_price" required></label>
-    <label>Category:
-        <select name="food_category" required>
-            <option value="meals">Meals</option>
-            <option value="snacks">Snacks</option>
-            <option value="sweets">Sweets</option>
-            <option value="drinks">Drinks</option>
-        </select>
-    </label>
-    <label>Availability:
-        <select name="food_availability" required>
-            <option value="available">Available</option>
-            <option value="out_of_order">Out of Order</option>
-        </select>
-    </label>
-    <button type="submit">Add Item</button>
-</form>
+<!-- Add New Item Link -->
+<a href="${pageContext.request.contextPath}/menu?action=add" class="add-btn">Add New Menu Item</a>
 
 <!-- Menu Items Table -->
 <h2>Current Menu Items</h2>
@@ -71,8 +62,8 @@
             <td>${item.foodCategory}</td>
             <td>${item.foodAvailability}</td>
             <td>
-                <a href="menu?action=edit&food_id=${item.foodId}">Edit</a>
-                <form action="menu" method="post" style="display: inline;">
+                <a href="?action=edit&food_id=${item.foodId}">Edit</a>
+                <form action="" method="post" style="display: inline;">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="food_id" value="${item.foodId}">
                     <button type="submit">Delete</button>

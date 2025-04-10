@@ -43,8 +43,10 @@ public class MenuItemServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     // Constants for JSP view paths
-    private static final String MENU_PAGE = "/WEB-INF/menu.jsp";
-    private static final String EDIT_PAGE = "/WEB-INF/editMenuItem.jsp";
+    private static final String MENU_PAGE = "/WEB-INF/menu/index.jsp";
+    private static final String EDIT_PAGE = "/WEB-INF/menu/editMenuItem.jsp";
+    private static final String ADD_PAGE = "/WEB-INF/menu/addMenuItem.jsp";
+
 
     /**
      * Nested class containing constants for request parameter names.
@@ -63,6 +65,7 @@ public class MenuItemServlet extends HttpServlet {
      * Nested class containing constants for action values.
      */
     private static final class Actions {
+        static final String ADD = "add";
         static final String CREATE = "create";    // Create action
         static final String UPDATE = "update";    // Update action
         static final String DELETE = "delete";    // Delete action
@@ -124,6 +127,8 @@ public class MenuItemServlet extends HttpServlet {
 
             if (Actions.EDIT.equals(action)) {
                 showEditForm(request, response);
+            } else if (Actions.ADD.equals(action)) {
+                showAddForm(request, response);
             } else {
                 showMenuItems(request, response);
             }
@@ -243,13 +248,18 @@ public class MenuItemServlet extends HttpServlet {
         MenuItemModel menuItem = extractMenuItemFromRequest(request);
 
         if (validateMenuItem(menuItem, session)) {
-            response.sendRedirect(request.getContextPath() + MENU_PAGE);
+            response.sendRedirect(request.getContextPath() + "/menu");
             return;
         }
 
         boolean isAdded = menuItemDAO.addMenuItem(menuItem);
         setOperationResultMessage(session, isAdded, "added");
         response.sendRedirect(request.getContextPath() + "/menu");
+    }
+
+    private void showAddForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher(ADD_PAGE).forward(request, response);
     }
 
     /**
