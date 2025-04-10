@@ -8,6 +8,7 @@ import java.math.BigDecimal;
  */
 public class MenuItemModel {
     // Menu item attributes
+    private  int foodId;
     private String foodName;            // Name of the food item
     private String foodDescription;     // Description of the food item
     private BigDecimal foodPrice;           // Price of the food item
@@ -31,7 +32,21 @@ public class MenuItemModel {
         this.foodAvailability = foodAvailability;
     }
 
-    // Getter and setter methods with documentation
+    // Constructor for existing items (with ID)
+    public MenuItemModel(int foodId, String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability) {
+        this.foodId = foodId;
+        this.foodName = foodName;
+        this.foodDescription = foodDescription;
+        this.foodPrice = foodPrice;
+        this.foodCategory = foodCategory;
+        this.foodAvailability = foodAvailability;
+    }
+
+
+    public int getFoodId() { return foodId; }
+
+    public void setFoodId(int foodId) { this.foodId = foodId; }
+
     /** @return Name of the food item */
     public String getFoodName() { return foodName; }
 

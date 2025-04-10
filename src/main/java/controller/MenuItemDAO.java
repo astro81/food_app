@@ -45,7 +45,7 @@ public class MenuItemDAO {
      */
     public List<MenuItemModel> getAllMenuItems() throws SQLException {
         List<MenuItemModel> menuItems = new ArrayList<>();
-        String SELECT_ALL_ITEMS_SQL = "SELECT * FROM MenuItem";
+        String SELECT_ALL_ITEMS_SQL = "SELECT * FROM MenuItem ORDER BY food_id";
 
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -54,6 +54,7 @@ public class MenuItemDAO {
 
             while (rs.next()) {
                 MenuItemModel item = new MenuItemModel(
+                        rs.getInt("food_id"),
                         rs.getString("food_name"),
                         rs.getString("food_description"),
                         rs.getBigDecimal("food_price"),
@@ -62,7 +63,6 @@ public class MenuItemDAO {
                 );
                 menuItems.add(item);
             }
-
         } catch (ClassNotFoundException e) {
             throw new SQLException("Database driver not found", e);
         }
@@ -142,5 +142,91 @@ public class MenuItemDAO {
         pst.setString(4, menuItem.getFoodCategory());
         pst.setString(5, menuItem.getFoodAvailability());
         return pst;
+    }
+
+    /**
+     * Updates an existing menu item
+     * @param menuItem The MenuItemModel with updated values
+     * @return true if successful
+     * @throws SQLException if any database error occurs
+     */
+    public boolean updateMenuItem(MenuItemModel menuItem) throws SQLException {
+        String UPDATE_ITEM_SQL = "UPDATE MenuItem SET " +
+                "food_name = ?, food_description = ?, food_price = ?, " +
+                "food_category = ?, food_availability = ? " +
+                "WHERE food_id = ?";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement pst = connection.prepareStatement(UPDATE_ITEM_SQL);
+
+            pst.setString(1, menuItem.getFoodName());
+            pst.setString(2, menuItem.getFoodDescription());
+            pst.setBigDecimal(3, menuItem.getFoodPrice());
+            pst.setString(4, menuItem.getFoodCategory());
+            pst.setString(5, menuItem.getFoodAvailability());
+            pst.setInt(6, menuItem.getFoodId());
+
+            int rowsAffected = pst.executeUpdate();
+            return rowsAffected > 0;
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
+        }
+    }
+
+    /**
+     * Deletes a menu item from the database
+     * @param itemId The ID of the item to delete
+     * @return true if successful
+     * @throws SQLException if any database error occurs
+     */
+    public boolean deleteMenuItem(int itemId) throws SQLException {
+        String DELETE_ITEM_SQL = "DELETE FROM MenuItem WHERE food_id = ?";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement pst = connection.prepareStatement(DELETE_ITEM_SQL);
+
+            pst.setInt(1, itemId);
+            int rowsAffected = pst.executeUpdate();
+            return rowsAffected > 0;
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
+        }
+    }
+
+    /**
+     * Gets a single menu item by ID
+     * @param itemId The ID of the item to retrieve
+     * @return MenuItemModel or null if not found
+     * @throws SQLException if any database error occurs
+     */
+    public MenuItemModel getMenuItemById(int itemId) throws SQLException {
+        String SELECT_ITEM_SQL = "SELECT * FROM MenuItem WHERE food_id = ?";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement pst = connection.prepareStatement(SELECT_ITEM_SQL);
+
+            pst.setInt(1, itemId);
+            try {
+                ResultSet rs = pst.executeQuery();
+                if (rs.next()) {
+                    return new MenuItemModel(
+                            rs.getInt("food_id"),
+                            rs.getString("food_name"),
+                            rs.getString("food_description"),
+                            rs.getBigDecimal("food_price"),
+                            rs.getString("food_category"),
+                            rs.getString("food_availability")
+                    );
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
+        }
     }
 }
