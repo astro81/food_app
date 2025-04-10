@@ -3,49 +3,31 @@ package controller;
 import app.config.DatabaseConnection;
 import model.MenuItemModel;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Data Access Object (DAO) for menu item operations.
- * <p>
- * This class provides database operations related to menu items, including:
- * <ul>
- *   <li>Inserting new menu items into the database</li>
- *   <li>Handling database connections and resources</li>
- *   <li>Managing SQL exceptions and error reporting</li>
- * </ul>
- *
- * <p><strong>Database Operations:</strong>
- * <ul>
- *   <li>Uses prepared statements to prevent SQL injection</li>
- *   <li>Converts Java types to appropriate SQL types</li>
- *   <li>Properly manages database connections</li>
- * </ul>
- *
- * <p><strong>Error Handling:</strong>
- * <ul>
- *   <li>Wraps ClassNotFoundException as SQLException</li>
- *   <li>Logs detailed SQL error information</li>
- *   <li>Propagates exceptions for service layer handling</li>
- * </ul>
+ * Provides CRUD functionality for menu items in the database.
  */
 public class MenuItemDAO {
 
-    // Add this method to the MenuItemDAO class
+    // SQL Query Constants
+    private static final String SELECT_ALL_ITEMS_SQL = "SELECT * FROM MenuItem ORDER BY food_id";
+    private static final String INSERT_ITEM_SQL = "INSERT INTO MenuItem(food_name, food_description, food_price, " + "food_category, food_availability) VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE_ITEM_SQL = "UPDATE MenuItem SET food_name=?, food_description=?, food_price=?, food_category=?, food_availability=? WHERE food_id=?";
+    private static final String DELETE_ITEM_SQL = "DELETE FROM MenuItem WHERE food_id=?";
+    private static final String SELECT_ITEM_BY_ID_SQL = "SELECT * FROM MenuItem WHERE food_id=?";
+
     /**
      * Retrieves all menu items from the database.
      *
-     * @return List of MenuItemModel objects
+     * @return List of all menu items ordered by food_id
      * @throws SQLException if any database error occurs
      */
     public List<MenuItemModel> getAllMenuItems() throws SQLException {
         List<MenuItemModel> menuItems = new ArrayList<>();
-        String SELECT_ALL_ITEMS_SQL = "SELECT * FROM MenuItem ORDER BY food_id";
 
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -53,15 +35,7 @@ public class MenuItemDAO {
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
-                MenuItemModel item = new MenuItemModel(
-                        rs.getInt("food_id"),
-                        rs.getString("food_name"),
-                        rs.getString("food_description"),
-                        rs.getBigDecimal("food_price"),
-                        rs.getString("food_category"),
-                        rs.getString("food_availability")
-                );
-                menuItems.add(item);
+                menuItems.add(mapResultSetToMenuItem(rs));
             }
         } catch (ClassNotFoundException e) {
             throw new SQLException("Database driver not found", e);
@@ -70,163 +44,132 @@ public class MenuItemDAO {
     }
 
     /**
-     * Inserts a new menu item into the database.
-     * <p>
-     * This method orchestrates the complete insert operation workflow:
-     * <ol>
-     *   <li>Delegates statement preparation to helper method</li>
-     *   <li>Executes the parameterized SQL statement</li>
-     *   <li>Evaluates the operation success based on affected rows</li>
-     *   <li>Handles exceptions with appropriate logging and wrapping</li>
-     * </ol>
+     * Adds a new menu item to the database.
      *
-     * @param menuItem The MenuItemModel object containing all menu item attributes
-     * @return true if exactly one row was affected by the insert operation
-     * @throws SQLException if any database access error occurs, including:
-     *                      <ul>
-     *                        <li>Connection failures (unable to establish connection)</li>
-     *                        <li>SQL syntax errors (malformed query)</li>
-     *                        <li>Constraint violations (duplicate or invalid data)</li>
-     *                        <li>Driver configuration issues</li>
-     *                      </ul>
+     * @param menuItem The menu item to be added
+     * @return true if the operation was successful
+     * @throws SQLException if any database error occurs
      */
     public boolean addMenuItem(MenuItemModel menuItem) throws SQLException {
         try {
-            // SQL query with parameter placeholders
-            PreparedStatement pst = getAddItemPreparedStatement(menuItem);
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement pst = connection.prepareStatement(INSERT_ITEM_SQL);
 
-            // Execute update and check if successful
-            int rowsAffected = pst.executeUpdate();
-            return rowsAffected > 0;
+            setInsertParameters(pst, menuItem);
+            return pst.executeUpdate() > 0;
 
         } catch (ClassNotFoundException e) {
-            // Wrap driver not found exception as SQLException
             throw new SQLException("Database driver not found", e);
-        } catch (SQLException e) {
-            // Log detailed SQL error information
-            System.err.println("SQL Error: " + e.getMessage());
-            System.err.println("SQL State: " + e.getSQLState());
-            System.err.println("Vendor Error: " + e.getErrorCode());
-            throw e;
         }
     }
 
     /**
-     * Prepares a parameterized SQL statement for menu item insertion.
-     * <p>
-     * This helper method encapsulates the statement preparation logic:
-     * <ol>
-     *   <li>Defines the parameterized SQL insert statement</li>
-     *   <li>Establishes database connection</li>
-     *   <li>Binds all menu item attributes to their respective parameters</li>
-     * </ol>
+     * Sets parameters for an INSERT operation.
      *
-     * @param menuItem The MenuItemModel containing data to be persisted
-     * @return A fully parameterized PreparedStatement ready for execution
-     * @throws SQLException if database access fails during statement preparation
-     * @throws ClassNotFoundException if the database driver is not properly configured
+     * @param pst The PreparedStatement to set parameters on
+     * @param menuItem The menu item containing the data
+     * @throws SQLException if there's an error setting parameters
      */
-    private static PreparedStatement getAddItemPreparedStatement(MenuItemModel menuItem) throws SQLException, ClassNotFoundException {
-        String INSERT_ITEM_SQL = "INSERT INTO MenuItem" +
-                "(food_name, food_description, food_price, food_category, food_availability) " +
-                "VALUES (?, ?, ?, ?, ?)";
-
-        // Get database connection and prepare statement
-        Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement pst = connection.prepareStatement(INSERT_ITEM_SQL);
-
-        // Set parameters from menuItem object
+    private void setInsertParameters(PreparedStatement pst, MenuItemModel menuItem)
+            throws SQLException {
         pst.setString(1, menuItem.getFoodName());
         pst.setString(2, menuItem.getFoodDescription());
         pst.setBigDecimal(3, menuItem.getFoodPrice());
         pst.setString(4, menuItem.getFoodCategory());
         pst.setString(5, menuItem.getFoodAvailability());
-        return pst;
     }
 
     /**
-     * Updates an existing menu item
-     * @param menuItem The MenuItemModel with updated values
-     * @return true if successful
+     * Updates an existing menu item in the database.
+     *
+     * @param menuItem The menu item with updated values
+     * @return true if the operation was successful
      * @throws SQLException if any database error occurs
      */
     public boolean updateMenuItem(MenuItemModel menuItem) throws SQLException {
-        String UPDATE_ITEM_SQL = "UPDATE MenuItem SET " +
-                "food_name = ?, food_description = ?, food_price = ?, " +
-                "food_category = ?, food_availability = ? " +
-                "WHERE food_id = ?";
-
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement pst = connection.prepareStatement(UPDATE_ITEM_SQL);
 
-            pst.setString(1, menuItem.getFoodName());
-            pst.setString(2, menuItem.getFoodDescription());
-            pst.setBigDecimal(3, menuItem.getFoodPrice());
-            pst.setString(4, menuItem.getFoodCategory());
-            pst.setString(5, menuItem.getFoodAvailability());
-            pst.setInt(6, menuItem.getFoodId());
+            setUpdateParameters(pst, menuItem);
+            return pst.executeUpdate() > 0;
 
-            int rowsAffected = pst.executeUpdate();
-            return rowsAffected > 0;
         } catch (ClassNotFoundException e) {
             throw new SQLException("Database driver not found", e);
         }
     }
 
     /**
-     * Deletes a menu item from the database
-     * @param itemId The ID of the item to delete
-     * @return true if successful
+     * Sets parameters for an UPDATE operation.
+     *
+     * @param pst The PreparedStatement to set parameters on
+     * @param menuItem The menu item containing the updated data
+     * @throws SQLException if there's an error setting parameters
+     */
+    private void setUpdateParameters(PreparedStatement pst, MenuItemModel menuItem)
+            throws SQLException {
+        setInsertParameters(pst, menuItem);
+        pst.setInt(6, menuItem.getFoodId());
+    }
+
+    /**
+     * Deletes a menu item from the database.
+     *
+     * @param itemId The ID of the item to be deleted
+     * @return true if the operation was successful
      * @throws SQLException if any database error occurs
      */
     public boolean deleteMenuItem(int itemId) throws SQLException {
-        String DELETE_ITEM_SQL = "DELETE FROM MenuItem WHERE food_id = ?";
-
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement pst = connection.prepareStatement(DELETE_ITEM_SQL);
 
             pst.setInt(1, itemId);
-            int rowsAffected = pst.executeUpdate();
-            return rowsAffected > 0;
+            return pst.executeUpdate() > 0;
+
         } catch (ClassNotFoundException e) {
             throw new SQLException("Database driver not found", e);
         }
     }
 
     /**
-     * Gets a single menu item by ID
+     * Retrieves a single menu item by its ID.
+     *
      * @param itemId The ID of the item to retrieve
-     * @return MenuItemModel or null if not found
+     * @return The menu item if found, null otherwise
      * @throws SQLException if any database error occurs
      */
     public MenuItemModel getMenuItemById(int itemId) throws SQLException {
-        String SELECT_ITEM_SQL = "SELECT * FROM MenuItem WHERE food_id = ?";
-
         try {
             Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement pst = connection.prepareStatement(SELECT_ITEM_SQL);
+            PreparedStatement pst = connection.prepareStatement(SELECT_ITEM_BY_ID_SQL);
 
             pst.setInt(1, itemId);
-            try {
-                ResultSet rs = pst.executeQuery();
-                if (rs.next()) {
-                    return new MenuItemModel(
-                            rs.getInt("food_id"),
-                            rs.getString("food_name"),
-                            rs.getString("food_description"),
-                            rs.getBigDecimal("food_price"),
-                            rs.getString("food_category"),
-                            rs.getString("food_availability")
-                    );
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next() ? mapResultSetToMenuItem(rs) : null;
             }
-            return null;
+
         } catch (ClassNotFoundException e) {
             throw new SQLException("Database driver not found", e);
         }
     }
+
+    /**
+     * Maps a ResultSet row to a MenuItemModel object.
+     *
+     * @param rs The ResultSet containing the menu item data
+     * @return A populated MenuItemModel object
+     * @throws SQLException if there's an error accessing the ResultSet
+     */
+    private MenuItemModel mapResultSetToMenuItem(ResultSet rs) throws SQLException {
+        return new MenuItemModel(
+                rs.getInt("food_id"),
+                rs.getString("food_name"),
+                rs.getString("food_description"),
+                rs.getBigDecimal("food_price"),
+                rs.getString("food_category"),
+                rs.getString("food_availability")
+        );
+    }
+
 }
