@@ -29,5 +29,7 @@
 </h1>
 <br/>
 <a href="${pageContext.request.contextPath}/user/login" class="login-link">Go to Login Page</a>
+<a href="${pageContext.request.contextPath}/menu" class="login-link">Go to Menu Page</a>
+
 </body>
 </html>

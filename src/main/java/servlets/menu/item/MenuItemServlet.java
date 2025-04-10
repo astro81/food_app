@@ -13,6 +13,7 @@ import java.io.Serial;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Servlet implementation for menu item management.
@@ -35,7 +36,7 @@ import java.util.Arrays;
  */
 @WebServlet(
         name = "MenuItemServlet",
-        value = "/menu-item",
+        value = "/menu",
         description = "Handles creation and management of menu items in the system"
 )
 public class MenuItemServlet extends HttpServlet {
@@ -45,7 +46,8 @@ public class MenuItemServlet extends HttpServlet {
     /**
      * Path to the menu display page where users are redirected after processing.
      */
-    private static final String MENU_PAGE = "/menu.jsp";
+//    private static final String MENU_PAGE = "/menu.jsp";
+    private static final String MENU_PAGE = "/WEB-INF/menu.jsp";
 
     // Form parameter names
     private static final String ITEM_FORM_PARAM_NAME = "food_name";
@@ -70,6 +72,33 @@ public class MenuItemServlet extends HttpServlet {
     @Override
     public void init() {
         this.menuItemDAO = new MenuItemDAO();
+    }
+
+    // Add this method to handle GET requests
+    /**
+     * Handles HTTP GET requests for viewing menu items.
+     *
+     * Retrieves all menu items from the database and forwards them to the JSP page
+     * for display.
+     *
+     * @param request the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            List<MenuItemModel> menuItems = menuItemDAO.getAllMenuItems();
+            System.out.println("menu" + menuItems);
+            request.setAttribute("menuItems", menuItems);
+            request.getRequestDispatcher(MENU_PAGE).forward(request, response);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.getSession().setAttribute(ATTR_ERROR, "Error retrieving menu items: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + MENU_PAGE);
+        }
     }
 
     /**

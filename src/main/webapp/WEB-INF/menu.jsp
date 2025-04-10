@@ -1,8 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Menu Item</title>
+    <title>Menu Management</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -87,21 +88,54 @@
             color: #a94442;
             border: 1px solid #ebccd1;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .price-column {
+            text-align: right;
+        }
+        .availability-available {
+            color: green;
+            font-weight: bold;
+        }
+        .availability-out {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 <div class="form-container">
-    <h1>Add New Menu Item</h1>
+    <h1>Menu Management</h1>
 
     <%-- Display messages from servlet --%>
-    <% String message = (String) request.getAttribute("message"); %>
-    <% String messageType = (String) request.getAttribute("messageType"); %>
-    <% if (message != null) { %>
-    <div class="message <%= messageType %>">
-        <%= message %>
-    </div>
-    <% } %>
+    <c:if test="${not empty successMessage}">
+        <div class="message success">
+                ${successMessage}
+        </div>
+    </c:if>
 
+    <c:if test="${not empty errorMessage}">
+        <div class="message error">
+                ${errorMessage}
+        </div>
+    </c:if>
+
+    <h2>Add New Menu Item</h2>
     <form action="menu-item" method="post">
         <div class="form-group">
             <label for="food_name" class="required">Food Name</label>
@@ -153,13 +187,65 @@
     </form>
 </div>
 
+<div style="max-width: 1000px; margin: 30px auto;">
+    <h2>Current Menu Items</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th class="price-column">Price</th>
+            <th>Category</th>
+            <th>Availability</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:choose>
+            <c:when test="${not empty menuItems}">
+                <c:forEach items="${menuItems}" var="item">
+                    <tr>
+                        <td>${item.foodName}</td>
+                        <td>${item.foodDescription}</td>
+                        <td class="price-column">$${String.format("%.2f", item.foodPrice)}</td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${item.foodCategory eq 'meals'}">🍽️ Meals</c:when>
+                                <c:when test="${item.foodCategory eq 'snacks'}">🍟 Snacks</c:when>
+                                <c:when test="${item.foodCategory eq 'sweets'}">🍰 Sweets</c:when>
+                                <c:when test="${item.foodCategory eq 'drinks'}">🥤 Drinks</c:when>
+                                <c:otherwise>${item.foodCategory}</c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${item.foodAvailability eq 'available'}">
+                                    <span class="availability-available">Available</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="availability-out">Out of Order</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </c:when>
+            <c:otherwise>
+                <tr>
+                    <td colspan="5" style="text-align: center;">No menu items found</td>
+                </tr>
+            </c:otherwise>
+        </c:choose>
+        </tbody>
+    </table>
+</div>
+
 <script>
     // Basic client-side validation
     document.querySelector('form').addEventListener('submit', function(e) {
         var priceInput = document.getElementById('food_price');
         var price = parseFloat(priceInput.value);
 
-        if (isNaN(price) {
+        if (isNaN(price)) {
             alert('Please enter a valid price');
             priceInput.focus();
             e.preventDefault();

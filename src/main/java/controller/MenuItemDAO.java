@@ -3,10 +3,12 @@ package controller;
 import app.config.DatabaseConnection;
 import model.MenuItemModel;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data Access Object (DAO) for menu item operations.
@@ -34,6 +36,40 @@ import java.sql.SQLException;
  */
 public class MenuItemDAO {
 
+    // Add this method to the MenuItemDAO class
+    /**
+     * Retrieves all menu items from the database.
+     *
+     * @return List of MenuItemModel objects
+     * @throws SQLException if any database error occurs
+     */
+    public List<MenuItemModel> getAllMenuItems() throws SQLException {
+        List<MenuItemModel> menuItems = new ArrayList<>();
+        String SELECT_ALL_ITEMS_SQL = "SELECT * FROM MenuItem";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement pst = connection.prepareStatement(SELECT_ALL_ITEMS_SQL);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                MenuItemModel item = new MenuItemModel(
+                        rs.getString("food_name"),
+                        rs.getString("food_description"),
+                        rs.getBigDecimal("food_price"),
+                        rs.getString("food_category"),
+                        rs.getString("food_availability")
+                );
+                menuItems.add(item);
+            }
+
+            System.out.println("dao menu" + menuItems);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
+        }
+        return menuItems;
+    }
+
     /**
      * Inserts a new menu item into the database.
      * <p>
@@ -58,7 +94,7 @@ public class MenuItemDAO {
     public boolean addMenuItem(MenuItemModel menuItem) throws SQLException {
         try {
             // SQL query with parameter placeholders
-            PreparedStatement pst = getPreparedStatement(menuItem);
+            PreparedStatement pst = getAddItemPreparedStatement(menuItem);
 
             // Execute update and check if successful
             int rowsAffected = pst.executeUpdate();
@@ -91,7 +127,7 @@ public class MenuItemDAO {
      * @throws SQLException if database access fails during statement preparation
      * @throws ClassNotFoundException if the database driver is not properly configured
      */
-    private static PreparedStatement getPreparedStatement(MenuItemModel menuItem) throws SQLException, ClassNotFoundException {
+    private static PreparedStatement getAddItemPreparedStatement(MenuItemModel menuItem) throws SQLException, ClassNotFoundException {
         String INSERT_ITEM_SQL = "INSERT INTO MenuItem" +
                 "(food_name, food_description, food_price, food_category, food_availability) " +
                 "VALUES (?, ?, ?, ?, ?)";
