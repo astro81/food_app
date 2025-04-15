@@ -93,9 +93,10 @@ public class RegistrationServlet extends HttpServlet {
         String userPasswd = request.getParameter(UserConstant.PARAM_PASSWORD);
         String userPhone = request.getParameter(UserConstant.PARAM_PHONE);
         String userAddress = request.getParameter(UserConstant.PARAM_ADDRESS);
+        String userRole = "customer";
 
         // Create user model
-        UserModel user = new UserModel(userName, userMail, userPasswd, userPhone, userAddress);
+        UserModel user = new UserModel(userName, userMail, userPasswd, userPhone, userAddress, userRole);
 
         try {
             // Attempt registration

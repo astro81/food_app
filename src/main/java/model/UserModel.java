@@ -11,6 +11,7 @@ public class UserModel {
     private String userPasswd;   // User's password (should be hashed)
     private String userPhone;    // User's phone number
     private String userAddress;  // User's physical address
+    private String userRole;
 
     /**
      * Constructor to create a new UserModel with all attributes.
@@ -20,16 +21,16 @@ public class UserModel {
      * @param userPasswd User's password
      * @param userPhone User's phone number
      * @param userAddress User's physical address
+     * @param userRole User's role
      */
-    public UserModel(String userName, String userMail, String userPasswd, String userPhone, String userAddress) {
+    public UserModel(String userName, String userMail, String userPasswd, String userPhone, String userAddress, String userRole) {
         this.userName = userName;
         this.userMail = userMail;
         this.userPasswd = userPasswd;
         this.userPhone = userPhone;
         this.userAddress = userAddress;
+        this.userRole = userRole;
     }
-
-    // Getter and setter methods with documentation
 
     /** @return User's full name */
     public String getUserName() { return userName; }
@@ -60,4 +61,8 @@ public class UserModel {
 
     /** @param userAddress User's physical address to set */
     public void setUserAddress(String userAddress) { this.userAddress = userAddress; }
+
+    public String getUserRole() { return userRole; }
+
+    public void setUserRole(String userRole) { this.userRole = userRole; }
 }

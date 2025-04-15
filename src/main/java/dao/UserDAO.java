@@ -12,10 +12,48 @@ import java.sql.SQLException;
  * Provides methods for user registration and authentication.
  */
 public class UserDAO {
-    static final String registerQuery = "INSERT INTO users(user_name, user_mail, user_passwd, user_phone, user_address) VALUES (?, ?, ?, ?, ?)";
-    static final String loginQuery = "SELECT * FROM users WHERE user_mail = ? AND user_passwd = ?";
-    static final String updateQuery = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
-    static final String deleteQuery = "DELETE FROM users WHERE user_mail = ?";
+    private static final String registerQuery = "INSERT INTO users(user_name, user_mail, user_passwd, user_phone, user_address, user_role) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String loginQuery = "SELECT * FROM users WHERE user_mail = ? AND user_passwd = ?";
+    private static final String updateQuery = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
+    private static final String deleteQuery = "DELETE FROM users WHERE user_mail = ?";
+
+    /**
+     * Helper method to create a connection and prepared statement
+     */
+    private PreparedStatement prepareStatement(String sql) throws SQLException {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            return connection.prepareStatement(sql);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Database driver not found", e);
+        }
+    }
+
+    /**
+     * Helper method to set user parameters on a PreparedStatement
+     */
+    private void setUserParameters(PreparedStatement pst, UserModel user) throws SQLException {
+        pst.setString(1, user.getUserName());
+        pst.setString(2, user.getUserMail());
+        pst.setString(3, user.getUserPasswd());
+        pst.setString(4, user.getUserPhone());
+        pst.setString(5, user.getUserAddress());
+        pst.setString(6, user.getUserRole());
+    }
+
+    /**
+     * Helper method to create a UserModel from a ResultSet
+     */
+    private UserModel mapResultSetToUser(ResultSet rs) throws SQLException {
+        return new UserModel(
+                rs.getString("user_name"),     // Get username from result
+                rs.getString("user_mail"),     // Get email from result
+                rs.getString("user_passwd"),   // Get password from result
+                rs.getString("user_phone"),    // Get phone from result
+                rs.getString("user_address"),  // Get address from result
+                rs.getString("user_role")      // Get role from result
+        );
+    }
 
     /**
      * Registers a new user in the database.
@@ -25,23 +63,9 @@ public class UserDAO {
      * @throws SQLException if there's a database access error or driver not found
      */
     public boolean registerUser(UserModel user) throws SQLException {
-        try {
-            Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement pst = connection.prepareStatement(registerQuery);
-
-            // Set parameters for the prepared statement
-            pst.setString(1, user.getUserName());      // Set username
-            pst.setString(2, user.getUserMail());      // Set email
-            pst.setString(3, user.getUserPasswd());    // Set password (should be hashed)
-            pst.setString(4, user.getUserPhone());     // Set phone number
-            pst.setString(5, user.getUserAddress());   // Set address
-
-            // Execute update and return true if rows were affected
+        try (PreparedStatement pst = prepareStatement(registerQuery)) {
+            setUserParameters(pst, user);
             return pst.executeUpdate() > 0;
-
-        } catch (ClassNotFoundException e) {
-            // Wrap ClassNotFoundException in SQLException
-            throw new SQLException("Database driver not found", e);
         }
     }
 
@@ -54,33 +78,14 @@ public class UserDAO {
      * @throws SQLException if there's a database access error or driver not found
      */
     public UserModel loginUser(String userMail, String userPasswd) throws SQLException {
-        try {
-            Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement pst = connection.prepareStatement(loginQuery);
+        try (PreparedStatement pst = prepareStatement(loginQuery)) {
+            pst.setString(1, userMail);
+            pst.setString(2, userPasswd);
 
-            // Set parameters
-            pst.setString(1, userMail);      // Set email parameter
-            pst.setString(2, userPasswd);    // Set password parameter
-
-            // Execute query and get result set
-            ResultSet rs = pst.executeQuery();
-
-            // If user exists, create and return UserModel object
-            if (rs.next()) {
-                return new UserModel(
-                        rs.getString("user_name"),     // Get username from result
-                        rs.getString("user_mail"),     // Get email from result
-                        rs.getString("user_passwd"),   // Get password from result
-                        rs.getString("user_phone"),    // Get phone from result
-                        rs.getString("user_address")   // Get address from result
-                );
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next() ? mapResultSetToUser(rs) : null;
             }
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Database Driver not found", e);
         }
-
-        // Return null if no matching user found
-        return null;
     }
 
     /**
@@ -92,10 +97,7 @@ public class UserDAO {
      * @throws SQLException if there's a database access error
      */
     public boolean updateUser(String currentEmail, UserModel updatedUser) throws SQLException {
-        try {
-            Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement pst = connection.prepareStatement(updateQuery);
-
+        try (PreparedStatement pst = prepareStatement(updateQuery)) {
             pst.setString(1, updatedUser.getUserName());
             pst.setString(2, updatedUser.getUserPasswd());
             pst.setString(3, updatedUser.getUserPhone());
@@ -103,8 +105,6 @@ public class UserDAO {
             pst.setString(5, currentEmail);
 
             return pst.executeUpdate() > 0;
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Database driver not found", e);
         }
     }
 
@@ -116,14 +116,9 @@ public class UserDAO {
      * @throws SQLException if there's a database access error
      */
     public boolean deleteUser(String userMail) throws SQLException {
-        try {
-            Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement pst = connection.prepareStatement(deleteQuery);
-
+        try (PreparedStatement pst = prepareStatement(deleteQuery)) {
             pst.setString(1, userMail);
             return pst.executeUpdate() > 0;
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Database driver not found", e);
         }
     }
 }

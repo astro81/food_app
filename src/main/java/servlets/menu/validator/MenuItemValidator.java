@@ -1,4 +1,3 @@
-// servlets/menu/item/validator/MenuItemValidator.java
 package servlets.menu.validator;
 
 import jakarta.servlet.http.HttpSession;

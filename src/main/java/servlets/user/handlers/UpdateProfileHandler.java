@@ -89,7 +89,9 @@ public class UpdateProfileHandler implements ProfileHandler {
                 // Use new phone if provided, otherwise keep current
                 userPhone != null ? userPhone : currentUser.getUserPhone(),
                 // Use new address if provided, otherwise keep current
-                userAddress != null ? userAddress : currentUser.getUserAddress()
+                userAddress != null ? userAddress : currentUser.getUserAddress(),
+                // Role remains unchanged
+                currentUser.getUserRole()
         );
     }
 
