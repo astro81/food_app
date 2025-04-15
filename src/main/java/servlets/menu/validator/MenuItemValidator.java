@@ -1,9 +1,9 @@
 // servlets/menu/item/validator/MenuItemValidator.java
-package servlets.menu.item.validator;
+package servlets.menu.validator;
 
 import jakarta.servlet.http.HttpSession;
 import model.MenuItemModel;
-import servlets.menu.item.util.MenuItemConstants;
+import servlets.menu.util.MenuItemConstants;
 
 public class MenuItemValidator {
     public static boolean validateMenuItem(MenuItemModel menuItem, HttpSession session) {

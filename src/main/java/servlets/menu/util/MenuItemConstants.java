@@ -1,5 +1,5 @@
 // servlets/menu/item/util/MenuItemConstants.java
-package servlets.menu.item.util;
+package servlets.menu.util;
 
 import java.util.Arrays;
 import java.util.List;

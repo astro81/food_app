@@ -1,6 +1,6 @@
 package TestDBConnection;
 
-import app.config.DatabaseConfig;
+import config.DatabaseConfig;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

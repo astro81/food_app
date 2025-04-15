@@ -1,7 +1,7 @@
 // servlets/menu/item/MenuItemServlet.java
-package servlets.menu.item;
+package servlets.menu;
 
-import controller.MenuItemDAO;
+import dao.MenuItemDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,9 +9,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.MenuItemModel;
-import servlets.menu.item.handler.MenuItemHandler;
-import servlets.menu.item.handler.MenuItemFormHandler;
-import servlets.menu.item.util.MenuItemConstants;
+import servlets.menu.handler.MenuItemHandler;
+import servlets.menu.handler.MenuItemFormHandler;
+import servlets.menu.util.MenuItemConstants;
 
 import java.io.IOException;
 import java.sql.SQLException;

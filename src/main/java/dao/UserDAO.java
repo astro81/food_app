@@ -1,6 +1,6 @@
-package controller;
+package dao;
 
-import app.config.DatabaseConnection;
+import config.DatabaseConnection;
 import model.UserModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +12,10 @@ import java.sql.SQLException;
  * Provides methods for user registration and authentication.
  */
 public class UserDAO {
+    static final String registerQuery = "INSERT INTO users(user_name, user_mail, user_passwd, user_phone, user_address) VALUES (?, ?, ?, ?, ?)";
+    static final String loginQuery = "SELECT * FROM users WHERE user_mail = ? AND user_passwd = ?";
+    static final String updateQuery = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
+    static final String deleteQuery = "DELETE FROM users WHERE user_mail = ?";
 
     /**
      * Registers a new user in the database.
@@ -21,15 +25,9 @@ public class UserDAO {
      * @throws SQLException if there's a database access error or driver not found
      */
     public boolean registerUser(UserModel user) throws SQLException {
-        // SQL query with parameterized values to prevent SQL injection
-        String sqlQuery = "INSERT INTO users(user_name, user_mail, user_passwd, user_phone, user_address) VALUES (?, ?, ?, ?, ?)";
-
         try {
-            // Get database connection from connection pool
             Connection connection = DatabaseConnection.getConnection();
-
-            // Create prepared statement to safely insert user data
-            PreparedStatement pst = connection.prepareStatement(sqlQuery);
+            PreparedStatement pst = connection.prepareStatement(registerQuery);
 
             // Set parameters for the prepared statement
             pst.setString(1, user.getUserName());      // Set username
@@ -56,15 +54,9 @@ public class UserDAO {
      * @throws SQLException if there's a database access error or driver not found
      */
     public UserModel loginUser(String userMail, String userPasswd) throws SQLException {
-        // SQL query to find user by email and password
-        String sqlQuery = "SELECT * FROM users WHERE user_mail = ? AND user_passwd = ?";
-
         try {
-            // Get database connection
             Connection connection = DatabaseConnection.getConnection();
-
-            // Create prepared statement for secure query
-            PreparedStatement pst = connection.prepareStatement(sqlQuery);
+            PreparedStatement pst = connection.prepareStatement(loginQuery);
 
             // Set parameters
             pst.setString(1, userMail);      // Set email parameter
@@ -100,10 +92,9 @@ public class UserDAO {
      * @throws SQLException if there's a database access error
      */
     public boolean updateUser(String currentEmail, UserModel updatedUser) throws SQLException {
-        String sqlQuery = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pst = connection.prepareStatement(sqlQuery)) {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement pst = connection.prepareStatement(updateQuery);
 
             pst.setString(1, updatedUser.getUserName());
             pst.setString(2, updatedUser.getUserPasswd());
@@ -125,10 +116,9 @@ public class UserDAO {
      * @throws SQLException if there's a database access error
      */
     public boolean deleteUser(String userMail) throws SQLException {
-        String sqlQuery = "DELETE FROM users WHERE user_mail = ?";
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pst = connection.prepareStatement(sqlQuery)) {
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement pst = connection.prepareStatement(deleteQuery);
 
             pst.setString(1, userMail);
             return pst.executeUpdate() > 0;

@@ -1,7 +1,7 @@
-package servlets.user.register;
+package servlets.user;
 
 import java.io.*;
-import controller.UserDAO;
+import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -35,22 +35,6 @@ public class RegistrationServlet extends HttpServlet {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // View configuration
-    private static final String REGISTRATION_PAGE = "/WEB-INF/user/register.jsp";
-
-    // Request parameter names
-    private static final String PARAM_NAME = "user_name";
-    private static final String PARAM_EMAIL = "user_mail";
-    private static final String PARAM_PASSWORD = "user_passwd";
-    private static final String PARAM_PHONE = "user_phone";
-    private static final String PARAM_ADDRESS = "user_address";
-
-    // Notification attributes
-    private static final String ATTR_NOTIFICATION = "NOTIFICATION";
-    private static final String MSG_SUCCESS = "User Registered Successfully!";
-    private static final String MSG_FAILURE = "Registration Failed!";
-    private static final String MSG_ERROR = "Error: ";
-
     // Dependencies
     private UserDAO userDAO;
 
@@ -79,7 +63,7 @@ public class RegistrationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher(REGISTRATION_PAGE).forward(request, response);
+        request.getRequestDispatcher(UserConstant.REGISTRATION_PAGE).forward(request, response);
     }
 
     /**
@@ -104,11 +88,11 @@ public class RegistrationServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Extract form data
-        String userName = request.getParameter(PARAM_NAME);
-        String userMail = request.getParameter(PARAM_EMAIL);
-        String userPasswd = request.getParameter(PARAM_PASSWORD);
-        String userPhone = request.getParameter(PARAM_PHONE);
-        String userAddress = request.getParameter(PARAM_ADDRESS);
+        String userName = request.getParameter(UserConstant.PARAM_NAME);
+        String userMail = request.getParameter(UserConstant.PARAM_EMAIL);
+        String userPasswd = request.getParameter(UserConstant.PARAM_PASSWORD);
+        String userPhone = request.getParameter(UserConstant.PARAM_PHONE);
+        String userAddress = request.getParameter(UserConstant.PARAM_ADDRESS);
 
         // Create user model
         UserModel user = new UserModel(userName, userMail, userPasswd, userPhone, userAddress);
@@ -116,28 +100,17 @@ public class RegistrationServlet extends HttpServlet {
         try {
             // Attempt registration
             if (userDAO.registerUser(user)) {
-                request.setAttribute(ATTR_NOTIFICATION, MSG_SUCCESS);
+                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_SUCCESS);
             } else {
-                request.setAttribute(ATTR_NOTIFICATION, MSG_FAILURE);
+                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_FAILURE);
             }
         } catch (Exception e) {
             // Error handling
-            request.setAttribute(ATTR_NOTIFICATION, MSG_ERROR + e.getMessage());
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_ERROR + e.getMessage());
             e.printStackTrace();
         }
 
         // Return to registration page with notification
-        request.getRequestDispatcher(REGISTRATION_PAGE).forward(request, response);
-    }
-
-    /**
-     * Cleanup method called during servlet destruction.
-     * <p>
-     * Currently no resources require explicit cleanup. Maintained for
-     * future compatibility and consistent servlet lifecycle management.
-     */
-    @Override
-    public void destroy() {
-        // No resources to clean up in current implementation
+        request.getRequestDispatcher(UserConstant.REGISTRATION_PAGE).forward(request, response);
     }
 }

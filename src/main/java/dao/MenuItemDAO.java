@@ -1,6 +1,6 @@
-package controller;
+package dao;
 
-import app.config.DatabaseConnection;
+import config.DatabaseConnection;
 import model.MenuItemModel;
 
 import java.sql.*;

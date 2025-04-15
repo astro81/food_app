@@ -1,11 +1,12 @@
-package servlets.user.profile.handlers;
+package servlets.user.handlers;
 
-import controller.UserDAO;
+import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.UserModel;
+import servlets.user.UserConstant;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -17,14 +18,6 @@ import java.sql.SQLException;
  * including session invalidation.
  */
 public class DeleteProfileHandler implements ProfileHandler {
-    // Notification attributes and messages
-    private static final String ATTR_NOTIFICATION = "NOTIFICATION";
-    private static final String MSG_DELETE_SUCCESS = "Account deleted successfully";
-    private static final String MSG_DELETE_FAILED = "Failed to delete account!";
-
-    // View configuration
-    private static final String LOGIN_PAGE = "/user/login";
-    private static final String PROFILE_PAGE = "/WEB-INF/user/profile.jsp";
 
     private final UserDAO userDao;
 
@@ -58,12 +51,12 @@ public class DeleteProfileHandler implements ProfileHandler {
         if (deleteSuccess) {
             // Successful deletion - terminate session
             session.invalidate();
-            response.sendRedirect(request.getContextPath() + LOGIN_PAGE +
-                    "?notification=" + MSG_DELETE_SUCCESS);
+            response.sendRedirect(request.getContextPath() + UserConstant.LOGIN_PATH +
+                    "?notification=" + UserConstant.MSG_DELETE_SUCCESS);
         } else {
             // Deletion failed - show error
-            request.setAttribute(ATTR_NOTIFICATION, MSG_DELETE_FAILED);
-            request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_DELETE_FAILED);
+            request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
         }
     }
 }

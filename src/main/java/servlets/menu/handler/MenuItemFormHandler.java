@@ -1,11 +1,11 @@
 // servlets/menu/item/handler/MenuItemFormHandler.java
-package servlets.menu.item.handler;
+package servlets.menu.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.MenuItemModel;
-import servlets.menu.item.util.MenuItemConstants;
+import servlets.menu.util.MenuItemConstants;
 
 import java.io.IOException;
 import java.math.BigDecimal;

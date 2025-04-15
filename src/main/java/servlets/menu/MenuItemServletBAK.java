@@ -1,6 +1,6 @@
-package servlets.menu.item;
+package servlets.menu;
 
-import controller.MenuItemDAO;
+import dao.MenuItemDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -31,7 +31,7 @@ import java.util.List;
  * <p>The servlet follows RESTful conventions with GET requests for read operations
  * and POST requests for create, update, and delete operations.
  *
- * <p>All database operations are delegated to the MenuItemDAO class.
+ * <p>All database operations are delegated to the MenuItemDAO clas####s.
  */
 @WebServlet(
         name = "MenuItemServlet",

@@ -1,18 +1,18 @@
-package servlets.user.profile;
+package servlets.user;
 
 import java.io.*;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import controller.UserDAO;
+import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.UserModel;
-import servlets.user.profile.handlers.DeleteProfileHandler;
-import servlets.user.profile.handlers.ProfileHandler;
-import servlets.user.profile.handlers.UpdateProfileHandler;
+import servlets.user.handlers.DeleteProfileHandler;
+import servlets.user.handlers.ProfileHandler;
+import servlets.user.handlers.UpdateProfileHandler;
 
 /**
  * Main servlet for handling user profile operations.
@@ -37,23 +37,6 @@ public class ProfileServlet extends HttpServlet {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // View configuration
-    private static final String PROFILE_PAGE = "/WEB-INF/user/profile.jsp";
-    private static final String LOGIN_PAGE = "/user/login";
-
-    // Request parameter and attribute names
-    private static final String PARAM_ACTION = "action";
-    private static final String ACTION_UPDATE = "update";
-    private static final String ACTION_DELETE = "delete";
-    private static final String ATTR_USER = "user";
-
-    // Notification messages
-    private static final String MSG_SESSION_EXPIRED = "Session expired. Please login again.";
-    private static final String MSG_INVALID_ACTION = "Invalid action requested!";
-    private static final String MSG_DB_ERROR = "Database error occurred. Please try again later.";
-
-    // Dependencies
-    private UserDAO userDao;
     private Map<String, ProfileHandler> handlers;
 
     /**
@@ -64,10 +47,11 @@ public class ProfileServlet extends HttpServlet {
      */
     @Override
     public void init() {
-        this.userDao = new UserDAO();
+        // Dependencies
+        UserDAO userDao = new UserDAO();
         this.handlers = new HashMap<>();
-        this.handlers.put(ACTION_UPDATE, new UpdateProfileHandler(userDao));
-        this.handlers.put(ACTION_DELETE, new DeleteProfileHandler(userDao));
+        this.handlers.put(UserConstant.ACTION_UPDATE, new UpdateProfileHandler(userDao));
+        this.handlers.put(UserConstant.ACTION_DELETE, new DeleteProfileHandler(userDao));
     }
 
     /**
@@ -81,7 +65,7 @@ public class ProfileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
+        request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
     }
 
     /**
@@ -104,13 +88,13 @@ public class ProfileServlet extends HttpServlet {
 
         // Verify user authentication
         if (!isUserAuthenticated(session)) {
-            response.sendRedirect(request.getContextPath() + LOGIN_PAGE +
-                    "?error=" + MSG_SESSION_EXPIRED);
+            response.sendRedirect(request.getContextPath() + UserConstant.LOGIN_PATH +
+                    "?error=" + UserConstant.MSG_SESSION_EXPIRED);
             return;
         }
 
-        UserModel currentUser = (UserModel) session.getAttribute(ATTR_USER);
-        String action = request.getParameter(PARAM_ACTION);
+        UserModel currentUser = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
+        String action = request.getParameter(UserConstant.PARAM_ACTION);
 
         try {
             // Route to appropriate handler
@@ -118,14 +102,14 @@ public class ProfileServlet extends HttpServlet {
             if (handler != null) {
                 handler.handle(request, response, currentUser, session);
             } else {
-                request.setAttribute("NOTIFICATION", MSG_INVALID_ACTION);
-                request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
+                request.setAttribute("NOTIFICATION", UserConstant.MSG_INVALID_ACTION);
+                request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
             }
         } catch (SQLException e) {
             // Handle database errors
             e.printStackTrace();
-            request.setAttribute("NOTIFICATION", MSG_DB_ERROR + ": " + e.getMessage());
-            request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
+            request.setAttribute("NOTIFICATION", UserConstant.MSG_DB_ERROR + ": " + e.getMessage());
+            request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
         }
     }
 
@@ -136,14 +120,6 @@ public class ProfileServlet extends HttpServlet {
      * @return true if session exists and contains a valid user object
      */
     private boolean isUserAuthenticated(HttpSession session) {
-        return session != null && session.getAttribute(ATTR_USER) != null;
-    }
-
-    /**
-     * Cleans up resources when servlet is destroyed.
-     */
-    @Override
-    public void destroy() {
-        // Currently no resources to clean up
+        return session != null && session.getAttribute(UserConstant.ATTR_USER) != null;
     }
 }

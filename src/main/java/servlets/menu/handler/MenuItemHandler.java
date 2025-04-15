@@ -1,14 +1,14 @@
 // servlets/menu/item/handler/MenuItemHandler.java
-package servlets.menu.item.handler;
+package servlets.menu.handler;
 
-import controller.MenuItemDAO;
+import dao.MenuItemDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.MenuItemModel;
-import servlets.menu.item.util.MenuItemConstants;
-import servlets.menu.item.validator.MenuItemValidator;
+import servlets.menu.util.MenuItemConstants;
+import servlets.menu.validator.MenuItemValidator;
 
 import java.io.IOException;
 import java.sql.SQLException;

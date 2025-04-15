@@ -1,11 +1,12 @@
-package servlets.user.profile.handlers;
+package servlets.user.handlers;
 
-import controller.UserDAO;
+import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.UserModel;
+import servlets.user.UserConstant;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -17,22 +18,6 @@ import java.sql.SQLException;
  * including name, contact details, and password.
  */
 public class UpdateProfileHandler implements ProfileHandler {
-    // Request parameter names
-    private static final String PARAM_NAME = "user_name";
-    private static final String PARAM_PHONE = "user_phone";
-    private static final String PARAM_ADDRESS = "user_address";
-    private static final String PARAM_PASSWORD = "user_passwd";
-
-    // Session and request attribute names
-    private static final String ATTR_USER = "user";
-    private static final String ATTR_NOTIFICATION = "NOTIFICATION";
-
-    // Notification messages
-    private static final String MSG_UPDATE_SUCCESS = "Profile updated successfully!";
-    private static final String MSG_UPDATE_FAILED = "Failed to update profile!";
-
-    // View configuration
-    private static final String PROFILE_PAGE = "/WEB-INF/user/profile.jsp";
 
     private final UserDAO userDao;
 
@@ -60,28 +45,27 @@ public class UpdateProfileHandler implements ProfileHandler {
             throws ServletException, IOException, SQLException {
 
         // Extract parameters from request
-        String userName = request.getParameter(PARAM_NAME);
-        String userPhone = request.getParameter(PARAM_PHONE);
-        String userAddress = request.getParameter(PARAM_ADDRESS);
-        String userPasswd = request.getParameter(PARAM_PASSWORD);
+        String userName = request.getParameter(UserConstant.PARAM_NAME);
+        String userPhone = request.getParameter(UserConstant.PARAM_PHONE);
+        String userAddress = request.getParameter(UserConstant.PARAM_ADDRESS);
+        String userPasswd = request.getParameter(UserConstant.PARAM_PASSWORD);
 
         // Create updated user model with validated data
-        UserModel updatedUser = createUpdatedUserModel(
-                currentUser, userName, userPhone, userAddress, userPasswd);
+        UserModel updatedUser = createUpdatedUserModel(currentUser, userName, userPhone, userAddress, userPasswd);
 
         // Attempt database update
         boolean updateSuccess = userDao.updateUser(currentUser.getUserMail(), updatedUser);
 
         if (updateSuccess) {
             // Update session with new user data
-            session.setAttribute(ATTR_USER, updatedUser);
-            request.setAttribute(ATTR_NOTIFICATION, MSG_UPDATE_SUCCESS);
+            session.setAttribute(UserConstant.ATTR_USER, updatedUser);
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_UPDATE_SUCCESS);
         } else {
-            request.setAttribute(ATTR_NOTIFICATION, MSG_UPDATE_FAILED);
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_UPDATE_FAILED);
         }
 
         // Return to profile view
-        request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
+        request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
     }
 
     /**
@@ -94,22 +78,16 @@ public class UpdateProfileHandler implements ProfileHandler {
      * @param userPasswd new password (null or empty retains current)
      * @return updated UserModel instance
      */
-    private UserModel createUpdatedUserModel(UserModel currentUser,
-                                             String userName, String userPhone, String userAddress,
-                                             String userPasswd) {
+    private UserModel createUpdatedUserModel(UserModel currentUser, String userName, String userPhone, String userAddress, String userPasswd) {
         return new UserModel(
                 // Use new name if provided, otherwise keep current
                 userName != null ? userName : currentUser.getUserName(),
-
                 // Email remains unchanged as it's used as identifier
                 currentUser.getUserMail(),
-
                 // Only update password if new value provided
                 isPasswordChanged(userPasswd) ? userPasswd : currentUser.getUserPasswd(),
-
                 // Use new phone if provided, otherwise keep current
                 userPhone != null ? userPhone : currentUser.getUserPhone(),
-
                 // Use new address if provided, otherwise keep current
                 userAddress != null ? userAddress : currentUser.getUserAddress()
         );

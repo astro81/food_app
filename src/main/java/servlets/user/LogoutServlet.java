@@ -1,4 +1,4 @@
-package servlets.user.logout;
+package servlets.user;
 
 import java.io.*;
 import jakarta.servlet.ServletException;
@@ -33,9 +33,6 @@ public class LogoutServlet extends HttpServlet {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // Configuration constants
-    private static final String LOGIN_PATH = "/user/login";
-
     /**
      * Handles HTTP GET requests for user logout.
      * <p>
@@ -61,7 +58,7 @@ public class LogoutServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Construct redirect path using context to ensure correct application root
-        String loginPage = request.getContextPath() + LOGIN_PATH;
+        String loginPage = request.getContextPath() + UserConstant.LOGIN_PATH;
 
         // Retrieve existing session without creating new one
         HttpSession session = request.getSession(false);
@@ -91,14 +88,4 @@ public class LogoutServlet extends HttpServlet {
         doGet(request, response);
     }
 
-    /**
-     * Cleanup method called during servlet destruction.
-     * <p>
-     * Currently no resources require explicit cleanup. Maintained for
-     * future compatibility and consistent servlet lifecycle management.
-     */
-    @Override
-    public void destroy() {
-        // No resources to clean up in current implementation
-    }
 }

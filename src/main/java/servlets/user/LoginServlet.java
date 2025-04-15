@@ -1,7 +1,7 @@
-package servlets.user.login;
+package servlets.user;
 
 import java.io.*;
-import controller.UserDAO;
+import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -33,23 +33,6 @@ public class LoginServlet extends HttpServlet {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // View configuration
-    private static final String LOGIN_PAGE = "/WEB-INF/user/login.jsp";
-    private static final String PROFILE_PAGE = "/WEB-INF/user/profile.jsp";
-
-    // Request parameter names
-    private static final String PARAM_EMAIL = "user_mail";
-    private static final String PARAM_PASSWORD = "user_passwd";
-
-    // Session attribute names
-    private static final String ATTR_USER = "user";
-    private static final String ATTR_NOTIFICATION = "NOTIFICATION";
-
-    // Notification messages
-    private static final String MSG_AUTH_FAILED = "Invalid email or password!";
-    private static final String MSG_DB_ERROR = "Database Error: ";
-    private static final String MSG_GENERIC_ERROR = "Error: ";
-
     // Dependencies
     private UserDAO userDao;
 
@@ -78,7 +61,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
+        request.getRequestDispatcher(UserConstant.LOGIN_PAGE).forward(request, response);
     }
 
     /**
@@ -101,8 +84,8 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Extract credentials from request
-        String userMail = request.getParameter(PARAM_EMAIL);
-        String userPasswd = request.getParameter(PARAM_PASSWORD);
+        String userMail = request.getParameter(UserConstant.PARAM_EMAIL);
+        String userPasswd = request.getParameter(UserConstant.PARAM_PASSWORD);
 
         try {
             // Attempt authentication
@@ -111,34 +94,23 @@ public class LoginServlet extends HttpServlet {
             if (user != null) {
                 // Authentication success - create session
                 HttpSession session = request.getSession();
-                session.setAttribute(ATTR_USER, user);
+                session.setAttribute(UserConstant.ATTR_USER, user);
 
                 // Forward to profile page (consider redirect for POST-REDIRECT-GET)
-                request.getRequestDispatcher(PROFILE_PAGE).forward(request, response);
+                request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
             } else {
                 // Authentication failure
-                request.setAttribute(ATTR_NOTIFICATION, MSG_AUTH_FAILED);
-                request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
+                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_AUTH_FAILED);
+                request.getRequestDispatcher(UserConstant.LOGIN_PAGE).forward(request, response);
             }
         } catch (SQLException e) {
             // Database error handling
-            request.setAttribute(ATTR_NOTIFICATION, MSG_DB_ERROR + e.getMessage());
-            request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_DB_ERROR + e.getMessage());
+            request.getRequestDispatcher(UserConstant.LOGIN_PAGE).forward(request, response);
         } catch (Exception e) {
             // Generic error handling
-            request.setAttribute(ATTR_NOTIFICATION, MSG_GENERIC_ERROR + e.getMessage());
-            request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_ERROR + e.getMessage());
+            request.getRequestDispatcher(UserConstant.LOGIN_PAGE).forward(request, response);
         }
-    }
-
-    /**
-     * Cleans up resources during servlet destruction.
-     * <p>
-     * Currently no resources require explicit cleanup. Method maintained for
-     * future compatibility and to match servlet lifecycle documentation.
-     */
-    @Override
-    public void destroy() {
-        // No resources to clean up in current implementation
     }
 }

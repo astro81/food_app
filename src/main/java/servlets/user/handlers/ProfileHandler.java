@@ -1,4 +1,4 @@
-package servlets.user.profile.handlers;
+package servlets.user.handlers;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
