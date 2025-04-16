@@ -1,11 +1,15 @@
 package dao;
 
-import config.DatabaseConnection;
 import model.MenuItemModel;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static dao.helpers.ConnectionHelper.prepareStatement;
+import static dao.helpers.MenuDAOHelpers.*;
 
 /**
  * Data Access Object (DAO) for menu item operations.
@@ -14,54 +18,13 @@ import java.util.List;
 public class MenuItemDAO {
 
     // SQL Query Constants
-    private static final String SELECT_ALL_ITEMS_SQL = "SELECT * FROM MenuItem ORDER BY food_id";
-    private static final String INSERT_ITEM_SQL = "INSERT INTO MenuItem(food_name, food_description, food_price, " + "food_category, food_availability) VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE_ITEM_SQL = "UPDATE MenuItem SET food_name=?, food_description=?, food_price=?, food_category=?, food_availability=? WHERE food_id=?";
-    private static final String DELETE_ITEM_SQL = "DELETE FROM MenuItem WHERE food_id=?";
-    private static final String SELECT_ITEM_BY_ID_SQL = "SELECT * FROM MenuItem WHERE food_id=?";
-    private static final String SELECT_BY_CATEGORY = "SELECT * FROM MenuItem WHERE food_category = ?";
-    private static final String SELECT_BY_AVAILABILITY = "SELECT * FROM MenuItem WHERE food_availability = ?";
-
-    /**
-     * Helper method to create a connection and prepared statement
-     */
-    private PreparedStatement prepareStatement(String sql) throws SQLException {
-        try {
-            Connection connection = DatabaseConnection.getConnection();
-            return connection.prepareStatement(sql);
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Database driver not found", e);
-        }
-    }
-
-    /**
-     * Sets parameters for INSERT/UPDATE operations
-     */
-    private void setMenuItemParameters(PreparedStatement pst, MenuItemModel menuItem) throws SQLException {
-        pst.setString(1, menuItem.getFoodName());
-        pst.setString(2, menuItem.getFoodDescription());
-        pst.setBigDecimal(3, menuItem.getFoodPrice());
-        pst.setString(4, menuItem.getFoodCategory());
-        pst.setString(5, menuItem.getFoodAvailability());
-    }
-
-    /**
-     * Maps a ResultSet row to a MenuItemModel object.
-     *
-     * @param rs The ResultSet containing the menu item data
-     * @return A populated MenuItemModel object
-     * @throws SQLException if there's an error accessing the ResultSet
-     */
-    private MenuItemModel mapResultSetToMenuItem(ResultSet rs) throws SQLException {
-        return new MenuItemModel(
-                rs.getInt("food_id"),
-                rs.getString("food_name"),
-                rs.getString("food_description"),
-                rs.getBigDecimal("food_price"),
-                rs.getString("food_category"),
-                rs.getString("food_availability")
-        );
-    }
+    private static final String SELECT_ALL_ITEMS_QUERY = "SELECT * FROM MenuItem ORDER BY food_id";
+    private static final String INSERT_ITEM_QUERY = "INSERT INTO MenuItem(food_name, food_description, food_price, " + "food_category, food_availability) VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE_ITEM_QUERY = "UPDATE MenuItem SET food_name=?, food_description=?, food_price=?, food_category=?, food_availability=? WHERE food_id=?";
+    private static final String DELETE_ITEM_QUERY = "DELETE FROM MenuItem WHERE food_id=?";
+    private static final String SELECT_ITEM_BY_ID_QUERY = "SELECT * FROM MenuItem WHERE food_id=?";
+    private static final String SELECT_BY_CATEGORY_QUERY = "SELECT * FROM MenuItem WHERE food_category = ?";
+    private static final String SELECT_BY_AVAILABILITY_QUERY = "SELECT * FROM MenuItem WHERE food_availability = ?";
 
     /**
      * Retrieves all menu items from the database.
@@ -72,7 +35,7 @@ public class MenuItemDAO {
     public List<MenuItemModel> getAllMenuItems() throws SQLException {
         List<MenuItemModel> menuItems = new ArrayList<>();
 
-        try (PreparedStatement pst = prepareStatement(SELECT_ALL_ITEMS_SQL);
+        try (PreparedStatement pst = prepareStatement(SELECT_ALL_ITEMS_QUERY);
              ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
                 menuItems.add(mapResultSetToMenuItem(rs));
@@ -90,7 +53,7 @@ public class MenuItemDAO {
      * @throws SQLException if any database error occurs
      */
     public MenuItemModel getMenuItemById(int itemId) throws SQLException {
-        try (PreparedStatement pst = prepareStatement(SELECT_ITEM_BY_ID_SQL)) {
+        try (PreparedStatement pst = prepareStatement(SELECT_ITEM_BY_ID_QUERY)) {
             pst.setInt(1, itemId);
 
             try (ResultSet rs = pst.executeQuery()) {
@@ -103,38 +66,14 @@ public class MenuItemDAO {
      * Get menu items by category
      */
     public List<MenuItemModel> getMenuItemsByCategory(String category) throws SQLException {
-        List<MenuItemModel> menuItems = new ArrayList<>();
-
-        try (PreparedStatement pst = prepareStatement(SELECT_BY_CATEGORY)) {
-            pst.setString(1, category);
-
-            try (ResultSet rs = pst.executeQuery()) {
-                while (rs.next()) {
-                    menuItems.add(mapResultSetToMenuItem(rs));
-                }
-            }
-        }
-
-        return menuItems;
+        return getMenuItemModels(category, SELECT_BY_CATEGORY_QUERY);
     }
 
     /**
      * Get menu items by availability
      */
     public List<MenuItemModel> getMenuItemsByAvailability(String availability) throws SQLException {
-        List<MenuItemModel> menuItems = new ArrayList<>();
-
-        try (PreparedStatement pst = prepareStatement(SELECT_BY_AVAILABILITY)) {
-            pst.setString(1, availability);
-
-            try (ResultSet rs = pst.executeQuery()) {
-                while (rs.next()) {
-                    menuItems.add(mapResultSetToMenuItem(rs));
-                }
-            }
-        }
-
-        return menuItems;
+        return getMenuItemModels(availability, SELECT_BY_AVAILABILITY_QUERY);
     }
 
     /**
@@ -145,7 +84,7 @@ public class MenuItemDAO {
      * @throws SQLException if any database error occurs
      */
     public boolean addMenuItem(MenuItemModel menuItem) throws SQLException {
-        try (PreparedStatement pst = prepareStatement(INSERT_ITEM_SQL)) {
+        try (PreparedStatement pst = prepareStatement(INSERT_ITEM_QUERY)) {
             setMenuItemParameters(pst, menuItem);
             return pst.executeUpdate() > 0;
         }
@@ -159,7 +98,7 @@ public class MenuItemDAO {
      * @throws SQLException if any database error occurs
      */
     public boolean updateMenuItem(MenuItemModel menuItem) throws SQLException {
-        try (PreparedStatement pst = prepareStatement(UPDATE_ITEM_SQL)) {
+        try (PreparedStatement pst = prepareStatement(UPDATE_ITEM_QUERY)) {
             setMenuItemParameters(pst, menuItem);
             pst.setInt(6, menuItem.getFoodId());
             return pst.executeUpdate() > 0;
@@ -174,7 +113,7 @@ public class MenuItemDAO {
      * @throws SQLException if any database error occurs
      */
     public boolean deleteMenuItem(int itemId) throws SQLException {
-        try (PreparedStatement pst = prepareStatement(DELETE_ITEM_SQL)) {
+        try (PreparedStatement pst = prepareStatement(DELETE_ITEM_QUERY)) {
             pst.setInt(1, itemId);
             return pst.executeUpdate() > 0;
         }
