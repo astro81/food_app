@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet({"/menu", "/menu/list"})
+@WebServlet(
+        name = "ViewMenuServlet",
+        value = "/menu",
+        description = "View menu items list"
+)
 public class ViewMenuServlet extends BaseMenuServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -19,7 +23,7 @@ public class ViewMenuServlet extends BaseMenuServlet {
             request.setAttribute("isAdmin", isAdmin(request));
             List<MenuItemModel> menuItems = menuItemDAO.getAllMenuItems();
             request.setAttribute(MenuConstant.ATTR_MENU_ITEMS, menuItems);
-            request.getRequestDispatcher(MenuConstant.MENU_LIST_PAGE).forward(request, response);
+            forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
         } catch (SQLException e) {
             handleError(request, response, e);
         }

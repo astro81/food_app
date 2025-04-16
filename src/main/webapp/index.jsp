@@ -1,4 +1,7 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%--<%@ include file="WEB-INF/templates/navbar.jsp" %>--%>
+<c:import url="WEB-INF/templates/navbar.jsp" />
 
 <!DOCTYPE html>
 <html>
@@ -25,11 +28,6 @@
     </style>
 </head>
 <body>
-<h1><%= "Welcome to Our Website!" %>
-</h1>
-<br/>
-<a href="${pageContext.request.contextPath}/user/login" class="login-link">Go to Login Page</a>
-<a href="${pageContext.request.contextPath}/menu/list" class="login-link">Go to Menu Page</a>
-
+<h1><%= "Welcome to Our Website!" %></h1>
 </body>
 </html>

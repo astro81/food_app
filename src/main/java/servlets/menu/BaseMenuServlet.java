@@ -10,7 +10,6 @@ import model.UserModel;
 import servlets.user.UserConstant;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 public abstract class BaseMenuServlet extends HttpServlet {
     protected MenuItemDAO menuItemDAO;
@@ -33,12 +32,26 @@ public abstract class BaseMenuServlet extends HttpServlet {
             throws ServletException, IOException {
         e.printStackTrace();
         request.setAttribute(MenuConstant.MSG_NOTIFICATION, MenuConstant.MSG_DB_ERROR + e.getMessage());
-        request.getRequestDispatcher(MenuConstant.MENU_LIST_PAGE).forward(request, response);
+        forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
     }
 
     protected void unauthorized(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setAttribute(MenuConstant.MSG_NOTIFICATION, MenuConstant.MSG_UNAUTHORIZED);
-        request.getRequestDispatcher(MenuConstant.MENU_LIST_PAGE).forward(request, response);
+        forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
+    }
+
+    protected void redirectToMenu(HttpServletResponse response, HttpServletRequest request)
+            throws IOException {
+        response.sendRedirect(request.getContextPath() + "/menu");
+    }
+
+    protected void forwardToView(HttpServletRequest request, HttpServletResponse response, String view)
+            throws ServletException, IOException {
+        request.getRequestDispatcher(view).forward(request, response);
+    }
+
+    protected void setNotification(HttpServletRequest request, String message) {
+        request.getSession().setAttribute(MenuConstant.MSG_NOTIFICATION, message);
     }
 }

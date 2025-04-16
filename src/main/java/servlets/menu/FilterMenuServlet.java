@@ -10,31 +10,47 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/menu/filter")
+@WebServlet(
+        name = "FilterMenuServlet",
+        value = "/menu/filter",
+        description = "Filter menu items on the basis of category and availability"
+)
 public class FilterMenuServlet extends BaseMenuServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             request.setAttribute("isAdmin", isAdmin(request));
-            String category = request.getParameter(MenuConstant.ATTR_FILTER_CATEGORY);
-            String availability = request.getParameter(MenuConstant.ATTR_FILTER_AVAILABILITY);
-            List<MenuItemModel> menuItems;
 
-            if (category != null && !category.isEmpty()) {
-                menuItems = menuItemDAO.getMenuItemsByCategory(category);
-                request.setAttribute(MenuConstant.ATTR_FILTER_CATEGORY, category);
-            } else if (availability != null && !availability.isEmpty()) {
-                menuItems = menuItemDAO.getMenuItemsByAvailability(availability);
-                request.setAttribute(MenuConstant.ATTR_FILTER_AVAILABILITY, availability);
-            } else {
-                menuItems = menuItemDAO.getAllMenuItems();
-            }
+            List<MenuItemModel> menuItems = getFilteredMenuItems(request);
 
-            request.setAttribute(MenuConstant.ATTR_MENU_ITEMS, menuItems);
-            request.getRequestDispatcher(MenuConstant.MENU_LIST_PAGE).forward(request, response);
+            setRequestAttributes(request, menuItems);
+            forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
         } catch (SQLException e) {
             handleError(request, response, e);
         }
+    }
+
+    private List<MenuItemModel> getFilteredMenuItems(HttpServletRequest request) throws SQLException {
+
+        String category = request.getParameter(MenuConstant.ATTR_FILTER_CATEGORY);
+        String availability = request.getParameter(MenuConstant.ATTR_FILTER_AVAILABILITY);
+
+        if (category != null && !category.isEmpty()) {
+
+            request.setAttribute(MenuConstant.ATTR_FILTER_CATEGORY, category);
+            return menuItemDAO.getMenuItemsByCategory(category);
+
+        } else if (availability != null && !availability.isEmpty()) {
+
+            request.setAttribute(MenuConstant.ATTR_FILTER_AVAILABILITY, availability);
+            return menuItemDAO.getMenuItemsByAvailability(availability);
+
+        }
+        return menuItemDAO.getAllMenuItems();
+    }
+
+    private void setRequestAttributes(HttpServletRequest request, List<MenuItemModel> menuItems) {
+        request.setAttribute(MenuConstant.ATTR_MENU_ITEMS, menuItems);
     }
 }
