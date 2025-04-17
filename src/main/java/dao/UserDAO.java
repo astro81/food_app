@@ -14,7 +14,7 @@ import static dao.helpers.UserDAOHelpers.*;
  */
 public class UserDAO {
     private static final String REGISTER_QUERY = "INSERT INTO users(user_name, user_mail, user_passwd, user_phone, user_address, user_role) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String LOGIN_QUERY = "SELECT * FROM users WHERE user_mail = ? AND user_passwd = ?";
+    private static final String LOGIN_QUERY = "SELECT * FROM users WHERE user_mail = ?";
     private static final String UPDATE_QUERY = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
     private static final String DELETE_QUERY = "DELETE FROM users WHERE user_mail = ?";
 
@@ -36,14 +36,12 @@ public class UserDAO {
      * Authenticates a user by checking credentials against the database.
      *
      * @param userMail The user's email address
-     * @param userPasswd The user's password (should be hashed before comparison)
      * @return UserModel object if authentication succeeds, null otherwise
      * @throws SQLException if there's a database access error or driver not found
      */
-    public UserModel loginUser(String userMail, String userPasswd) throws SQLException {
+    public UserModel loginUser(String userMail) throws SQLException {
         try (PreparedStatement pst = prepareStatement(LOGIN_QUERY)) {
             pst.setString(1, userMail);
-            pst.setString(2, userPasswd);
 
             try (ResultSet rs = pst.executeQuery()) {
                 return rs.next() ? mapResultSetToUser(rs) : null;

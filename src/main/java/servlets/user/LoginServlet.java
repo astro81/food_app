@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.UserModel;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.SQLException;
 
 /**
@@ -89,9 +91,10 @@ public class LoginServlet extends HttpServlet {
 
         try {
             // Attempt authentication
-            UserModel user = userDao.loginUser(userMail, userPasswd);
+//            UserModel user = userDao.loginUser(userMail, userPasswd);
+            UserModel user = userDao.loginUser(userMail);
 
-            if (user != null) {
+            if (user != null && BCrypt.checkpw(userPasswd, user.getUserPasswd())) {
                 // Authentication success - create session
                 HttpSession session = request.getSession();
                 session.setAttribute(UserConstant.ATTR_USER, user);

@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.UserModel;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * Servlet implementation for user registration process.
@@ -95,8 +96,11 @@ public class RegistrationServlet extends HttpServlet {
         String userAddress = request.getParameter(UserConstant.PARAM_ADDRESS);
         String userRole = "customer";
 
+        // Hash the password before creating UserModel
+        String hashedPassword = BCrypt.hashpw(userPasswd, BCrypt.gensalt());
+
         // Create user model
-        UserModel user = new UserModel(userName, userMail, userPasswd, userPhone, userAddress, userRole);
+        UserModel user = new UserModel(userName, userMail, hashedPassword, userPhone, userAddress, userRole);
 
         try {
             // Attempt registration

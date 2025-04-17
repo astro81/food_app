@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.UserModel;
+import org.mindrot.jbcrypt.BCrypt;
 import servlets.user.UserConstant;
 
 import java.io.IOException;
@@ -79,19 +80,18 @@ public class UpdateProfileHandler implements ProfileHandler {
      * @return updated UserModel instance
      */
     private UserModel createUpdatedUserModel(UserModel currentUser, String userName, String userPhone, String userAddress, String userPasswd) {
+        // Handle password hashing if password is being changed else password remains unchanged
+        String hashedPasswd = isPasswordChanged(userPasswd)
+                ? BCrypt.hashpw(userPasswd, BCrypt.gensalt())
+                : currentUser.getUserPasswd();
+
         return new UserModel(
-                // Use new name if provided, otherwise keep current
-                userName != null ? userName : currentUser.getUserName(),
-                // Email remains unchanged as it's used as identifier
-                currentUser.getUserMail(),
-                // Only update password if new value provided
-                isPasswordChanged(userPasswd) ? userPasswd : currentUser.getUserPasswd(),
-                // Use new phone if provided, otherwise keep current
-                userPhone != null ? userPhone : currentUser.getUserPhone(),
-                // Use new address if provided, otherwise keep current
-                userAddress != null ? userAddress : currentUser.getUserAddress(),
-                // Role remains unchanged
-                currentUser.getUserRole()
+                userName != null ? userName : currentUser.getUserName(),                           // Use new name if provided, otherwise keep current
+                currentUser.getUserMail(),                                                         // Email remains unchanged as it's used as identifier
+                hashedPasswd,                                                                     // Hashed password or existing hash
+                userPhone != null ? userPhone : currentUser.getUserPhone(),                        // Use new phone if provided, otherwise keep current
+                userAddress != null ? userAddress : currentUser.getUserAddress(),                  // Use new address if provided, otherwise keep current
+                currentUser.getUserRole()                                                          // Role remains unchanged
         );
     }
 
@@ -102,6 +102,6 @@ public class UpdateProfileHandler implements ProfileHandler {
      * @return true if password should be updated (not null and not empty)
      */
     private boolean isPasswordChanged(String newPassword) {
-        return newPassword != null && !newPassword.isEmpty();
+        return newPassword != null && !newPassword.trim().isEmpty();
     }
 }
