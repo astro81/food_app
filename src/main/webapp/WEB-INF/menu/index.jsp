@@ -1,4 +1,4 @@
-<%--WEB-INF/menu/menu-edit.jsp--%>
+<%--WEB-INF/menu/index.jsp--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:import url="/WEB-INF/templates/navbar.jsp" />
@@ -17,6 +17,7 @@
         .filter-section { background: #f5f5f5; padding: 15px; margin-bottom: 20px; }
         .btn { padding: 8px 12px; text-decoration: none; background: #4CAF50; color: white; border-radius: 4px; }
         .btn-danger { background: #f44336; }
+        .menu-image { max-width: 100px; max-height: 100px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -59,6 +60,7 @@
     <thead>
     <tr>
         <th>ID</th>
+        <th>Image</th>
         <th>Name</th>
         <th>Description</th>
         <th>Price</th>
@@ -73,6 +75,12 @@
     <c:forEach items="${menuItems}" var="item">
         <tr>
             <td>${item.foodId}</td>
+            <td>
+                <c:if test="${not empty item.foodImage}">
+                    <img src="${pageContext.request.contextPath}/images/${item.foodImage}"
+                         alt="${item.foodName}" class="menu-image">
+                </c:if>
+            </td>
             <td>${item.foodName}</td>
             <td>${item.foodDescription}</td>
             <td>$${item.foodPrice}</td>

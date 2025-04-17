@@ -1,9 +1,13 @@
 package servlets.menu.helpers;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import model.MenuItemModel;
 import servlets.menu.MenuConstant;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
@@ -20,7 +24,7 @@ public class MenuRequestHandler {
      * @return New MenuItemModel populated with request data
      * @throws NumberFormatException If price parameter cannot be parsed to BigDecimal
      */
-    public static MenuItemModel extractMenuItemFromRequest(HttpServletRequest request) {
+    public static MenuItemModel extractMenuItemFromRequest(HttpServletRequest request) throws ServletException, IOException {
         // Extract all basic menu item properties from request parameters
         String foodName = request.getParameter(MenuConstant.PARAM_FOOD_NAME);
         String foodDescription = request.getParameter(MenuConstant.PARAM_FOOD_DESC);
@@ -28,8 +32,27 @@ public class MenuRequestHandler {
         String foodCategory = request.getParameter(MenuConstant.PARAM_FOOD_CATEGORY);
         String foodAvailability = request.getParameter(MenuConstant.PARAM_FOOD_AVAILABILITY);
 
+        // Handle file upload
+        Part filePart = request.getPart("food_image");
+        String fileName = null;
+
+        if (filePart != null && filePart.getSize() > 0) {
+
+            fileName = System.currentTimeMillis() + "_" + filePart.getSubmittedFileName();
+            String uploadPath = request.getServletContext().getRealPath("/images");
+
+            File uploadDir = new File(uploadPath);
+
+            if (!uploadDir.exists()) uploadDir.mkdir();
+
+            filePart.write(uploadPath + File.separator + fileName);
+        } else {
+            // Use existing image if no new file was uploaded
+            fileName = request.getParameter("existing_image");
+        }
+
         // Create and return new menu item model
-        return new MenuItemModel(foodName, foodDescription, foodPrice, foodCategory, foodAvailability);
+        return new MenuItemModel(foodName, foodDescription, foodPrice, foodCategory, foodAvailability, fileName);
     }
 
     /**
@@ -40,7 +63,7 @@ public class MenuRequestHandler {
      * @return MenuItemModel populated with all properties including ID
      * @throws NumberFormatException If ID or price parameters cannot be parsed
      */
-    public static MenuItemModel extractMenuItemFromRequestWithId(HttpServletRequest request) {
+    public static MenuItemModel extractMenuItemFromRequestWithId(HttpServletRequest request) throws ServletException, IOException {
         // Extract item ID from request
         int foodId = Integer.parseInt(request.getParameter(MenuConstant.PARAM_FOOD_ID));
 

@@ -1,6 +1,7 @@
 package servlets.menu;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,11 @@ import java.sql.SQLException;
         name = "AddMenuServlet",
         value = "/menu/add",
         description = "Servlet for adding new menu items to the system. Handles both form display and submission."
+)
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024, // 1 MB
+        maxFileSize = 1024 * 1024 * 50,      // 10 MB
+        maxRequestSize = 1024 * 1024 * 100    // 100 MB
 )
 public class AddMenuServlet extends BaseMenuServlet {
 

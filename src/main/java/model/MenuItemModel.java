@@ -14,6 +14,7 @@ public class MenuItemModel {
     private BigDecimal foodPrice;           // Price of the food item
     private String foodCategory;        // Category of the food (meals, snacks, sweets, drinks)
     private String foodAvailability;    // Availability status (available, out_of_order)
+    private String foodImage;           // Field for image path
 
     /**
      * Constructor to create a new MenuItemModel with all attributes.
@@ -24,22 +25,24 @@ public class MenuItemModel {
      * @param foodCategory Category of the food
      * @param foodAvailability Availability status
      */
-    public MenuItemModel(String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability) {
+    public MenuItemModel(String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability, String foodImage) {
         this.foodName = foodName;
         this.foodDescription = foodDescription;
         this.foodPrice = foodPrice;
         this.foodCategory = foodCategory;
         this.foodAvailability = foodAvailability;
+        this.foodImage = foodImage;
     }
 
     // Constructor for existing items (with ID)
-    public MenuItemModel(int foodId, String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability) {
+    public MenuItemModel(int foodId, String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability, String foodImage) {
         this.foodId = foodId;
         this.foodName = foodName;
         this.foodDescription = foodDescription;
         this.foodPrice = foodPrice;
         this.foodCategory = foodCategory;
         this.foodAvailability = foodAvailability;
+        this.foodImage = foodImage;
     }
 
 
@@ -76,4 +79,10 @@ public class MenuItemModel {
 
     /** @param foodAvailability Availability status to set */
     public void setFoodAvailability(String foodAvailability) { this.foodAvailability = foodAvailability; }
+
+    /** @return Food Image */
+    public String getFoodImage() { return foodImage; }
+
+    /** @param foodImage Food Image to set */
+    public void setFoodImage(String foodImage) { this.foodImage = foodImage; }
 }

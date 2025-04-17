@@ -1,6 +1,7 @@
 package servlets.menu;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,11 @@ import java.sql.SQLException;
         name = "EditMenuServlet",
         value = "/menu/edit",
         description = "Servlet for editing menu items. Handles form display and update submissions."
+)
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024, // 1 MB
+        maxFileSize = 1024 * 1024 * 50,      // 10 MB
+        maxRequestSize = 1024 * 1024 * 100    // 100 MB
 )
 public class EditMenuServlet extends BaseMenuServlet {
 

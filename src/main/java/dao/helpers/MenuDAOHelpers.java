@@ -20,6 +20,7 @@ public class MenuDAOHelpers {
         pst.setBigDecimal(3, menuItem.getFoodPrice());
         pst.setString(4, menuItem.getFoodCategory());
         pst.setString(5, menuItem.getFoodAvailability());
+        pst.setString(6, menuItem.getFoodImage());
     }
 
     /**
@@ -36,7 +37,8 @@ public class MenuDAOHelpers {
                 rs.getString("food_description"),
                 rs.getBigDecimal("food_price"),
                 rs.getString("food_category"),
-                rs.getString("food_availability")
+                rs.getString("food_availability"),
+                rs.getString("food_image")
         );
     }
 

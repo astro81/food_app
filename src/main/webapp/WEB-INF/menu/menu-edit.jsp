@@ -30,6 +30,12 @@
         }
         .btn-cancel { background: #f44336; }
         .actions { margin-top: 20px; }
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            display: ${not empty menuItem.foodImage ? 'block' : 'none'};
+        }
     </style>
 </head>
 <body>
@@ -40,7 +46,7 @@
         <div class="notification">${NOTIFICATION}</div>
     </c:if>
 
-    <form action="${pageContext.request.contextPath}/menu/${empty menuItem ? 'add' : 'edit'}" method="post">
+    <form action="${pageContext.request.contextPath}/menu/${empty menuItem ? 'add' : 'edit'}" method="post" enctype="multipart/form-data">
         <c:if test="${not empty menuItem}">
             <input type="hidden" name="food_id" value="${menuItem.foodId}">
         </c:if>
@@ -79,11 +85,37 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label for="food_image">Image URL:</label>
+            <input type="file" id="food_image" name="food_image" accept="image/*"
+                   value="${menuItem.foodImage}" placeholder="Enter image URL">
+            <c:if test="${not empty menuItem.foodImage}">
+<%--                <img src="${menuItem.foodImage}" alt="Current Image" class="image-preview">--%>
+                <div>Current Image:</div>
+                <img src="${pageContext.request.contextPath}/images/${menuItem.foodImage}"
+                     alt="Current Image" class="image-preview">
+                <input type="hidden" name="existing_image" value="${menuItem.foodImage}">
+            </c:if>
+        </div>
+
         <div class="actions">
             <button type="submit" class="btn">Save</button>
             <a href="${pageContext.request.contextPath}/menu" class="btn btn-cancel">Cancel</a>
         </div>
     </form>
 </div>
+
+<script>
+    // Simple image preview functionality
+    document.getElementById('food_image').addEventListener('input', function() {
+        const preview = document.querySelector('.image-preview');
+        if (this.value) {
+            preview.src = this.value;
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
