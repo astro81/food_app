@@ -1,20 +1,19 @@
-package servlets.menu;
+package servlets.order;
 
+import dao.OrderDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.OrderModel;
 import model.UserModel;
 import servlets.user.UserConstant;
-import dao.OrderDAO;
 
 import java.io.IOException;
 
 @WebServlet("/make-order")
-public class MakeOrderServlet extends HttpServlet {
+public class MakeOrderServlet extends BaseOrderServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
@@ -27,12 +26,12 @@ public class MakeOrderServlet extends HttpServlet {
         OrderModel order = OrderDAO.getPendingOrder(user.getUserId());
 
         if (order == null || order.getItems().isEmpty()) {
-            session.setAttribute("NOTIFICATION", "No items in your order!");
+            setNotification(request, OrderConstant.MSG_NO_ITEMS);
             response.sendRedirect(request.getContextPath() + "/menu");
             return;
         }
 
         request.setAttribute("order", order);
-        request.getRequestDispatcher("/WEB-INF/menu/order-preview.jsp").forward(request, response);
+        request.getRequestDispatcher(OrderConstant.ORDER_PREVIEW_PAGE).forward(request, response);
     }
 }
