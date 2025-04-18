@@ -11,10 +11,8 @@ import model.UserModel;
 import servlets.user.UserConstant;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
-/**
- * Abstract base servlet class providing common functionality for order-related operations.
- */
 public abstract class BaseOrderServlet extends HttpServlet {
     protected OrderDAO orderDAO;
     protected MenuItemDAO menuItemDAO;
@@ -25,23 +23,34 @@ public abstract class BaseOrderServlet extends HttpServlet {
         this.menuItemDAO = new MenuItemDAO();
     }
 
-    protected boolean isAdmin(HttpServletRequest request) {
+    protected UserModel getAuthenticatedUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute(UserConstant.ATTR_USER) != null) {
-            UserModel user = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
-            return "admin".equals(user.getUserRole());
-        }
-        return false;
+        return (session != null) ? (UserModel) session.getAttribute(UserConstant.ATTR_USER) : null;
     }
 
-    protected void handleError(HttpServletRequest request, HttpServletResponse response, Exception e)
-            throws ServletException, IOException {
+    protected boolean isAdmin(HttpServletRequest request) {
+        UserModel user = getAuthenticatedUser(request);
+        return user != null && "admin".equals(user.getUserRole());
+    }
+
+    protected void handleError(HttpServletRequest request, HttpServletResponse response,
+                               Exception e, String redirectPath) throws ServletException, IOException {
         e.printStackTrace();
-        request.setAttribute(OrderConstant.MSG_NOTIFICATION, OrderConstant.MSG_DB_ERROR + e.getMessage());
-        response.sendRedirect(request.getContextPath() + "/menu");
+        setNotification(request, OrderConstant.MSG_DB_ERROR + e.getMessage());
+        response.sendRedirect(request.getContextPath() + redirectPath);
     }
 
     protected void setNotification(HttpServletRequest request, String message) {
         request.getSession().setAttribute(OrderConstant.MSG_NOTIFICATION, message);
+    }
+
+    protected void redirectToLogin(HttpServletResponse response, HttpServletRequest request)
+            throws IOException {
+        response.sendRedirect(request.getContextPath() + "/login");
+    }
+
+    protected void redirectToMenu(HttpServletResponse response, HttpServletRequest request)
+            throws IOException {
+        response.sendRedirect(request.getContextPath() + "/menu");
     }
 }
