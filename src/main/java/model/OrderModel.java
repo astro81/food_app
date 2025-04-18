@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,4 +39,10 @@ public class OrderModel {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public BigDecimal getTotal() {
+        return items.stream()
+                .map(MenuItemModel::getFoodPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

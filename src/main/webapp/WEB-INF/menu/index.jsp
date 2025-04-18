@@ -56,10 +56,17 @@
     <p><a href="${pageContext.request.contextPath}/menu/add" class="btn">Add New Menu Item</a></p>
 </c:if>
 
-<!-- Add this near the other buttons at the top -->
+<%--<!-- Add this near the other buttons at the top -->--%>
+<%--<c:if test="${not isAdmin}">--%>
+<%--    <form action="${pageContext.request.contextPath}/confirm-order" method="post" style="display:inline;">--%>
+<%--        <button type="submit" class="btn" style="background-color: #2196F3;">Confirm Order</button>--%>
+<%--    </form>--%>
+<%--</c:if>--%>
+
+<!-- Replace the confirm-order form with this -->
 <c:if test="${not isAdmin}">
-    <form action="${pageContext.request.contextPath}/confirm-order" method="post" style="display:inline;">
-        <button type="submit" class="btn" style="background-color: #2196F3;">Confirm Order</button>
+    <form action="${pageContext.request.contextPath}/make-order" method="get" style="display:inline;">
+        <button type="submit" class="btn" style="background-color: #2196F3;">Make Order</button>
     </form>
 </c:if>
 

@@ -93,6 +93,13 @@ public class OrderDAO {
         }
     }
 
+    public static OrderModel getPendingOrder(int userId) {
+        return pendingOrders.stream()
+                .filter(o -> o.getUserId() == userId && "pending".equals(o.getStatus()))
+                .findFirst()
+                .orElse(null);
+    }
+
     private static void printOrder(OrderModel order) {
         System.out.println("\n=== Pending Order ===");
         System.out.println("User ID: " + order.getUserId());
