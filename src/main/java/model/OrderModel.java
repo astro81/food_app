@@ -3,7 +3,9 @@ package model;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderModel {
     private int orderId;
@@ -11,10 +13,11 @@ public class OrderModel {
     private List<MenuItemModel> items;
     private Timestamp orderDate;
     private String status;
+    private Map<MenuItemModel, Integer> itemsWithQuantities = new HashMap<>(); // Item -> Quantity
 
     // Constructors
     public OrderModel() {
-        this.items = new ArrayList<>();
+        this.itemsWithQuantities = new HashMap<>();
     }
 
     public OrderModel(int userId) {
@@ -30,9 +33,7 @@ public class OrderModel {
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
 
-    public List<MenuItemModel> getItems() { return items; }
     public void setItems(List<MenuItemModel> items) { this.items = items; }
-    public void addItem(MenuItemModel item) { this.items.add(item); }
 
     public Timestamp getOrderDate() { return orderDate; }
     public void setOrderDate(Timestamp orderDate) { this.orderDate = orderDate; }
@@ -40,9 +41,28 @@ public class OrderModel {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    // Add or update item quantity
+    public void addItem(MenuItemModel item) {
+        itemsWithQuantities.merge(item, 1, Integer::sum);
+    }
+
+    // Get all items with quantities
+    public Map<MenuItemModel, Integer> getItemsWithQuantities() {
+        return itemsWithQuantities;
+    }
+
+    public List<OrderItem> getItems() {
+        List<OrderItem> items = new ArrayList<>();
+        for (Map.Entry<MenuItemModel, Integer> entry : itemsWithQuantities.entrySet()) {
+            items.add(new OrderItem(entry.getKey(), entry.getValue()));
+        }
+        return items;
+    }
+
+    // Calculate total
     public BigDecimal getTotal() {
-        return items.stream()
-                .map(MenuItemModel::getFoodPrice)
+        return itemsWithQuantities.entrySet().stream()
+                .map(entry -> entry.getKey().getFoodPrice().multiply(BigDecimal.valueOf(entry.getValue())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
