@@ -6,6 +6,7 @@ package model;
  */
 public class UserModel {
     // User attributes
+    private int userId;
     private String userName;     // User's full name
     private String userMail;     // User's email address (used as username)
     private String userPasswd;   // User's password (should be hashed)
@@ -30,6 +31,24 @@ public class UserModel {
         this.userPhone = userPhone;
         this.userAddress = userAddress;
         this.userRole = userRole;
+    }
+
+    public UserModel(int userId, String userName, String userMail, String userPasswd, String userPhone, String userAddress, String userRole) {
+        this.userId = userId;
+        this.userName = userName;
+        this.userMail = userMail;
+        this.userPasswd = userPasswd;
+        this.userPhone = userPhone;
+        this.userAddress = userAddress;
+        this.userRole = userRole;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     /** @return User's full name */

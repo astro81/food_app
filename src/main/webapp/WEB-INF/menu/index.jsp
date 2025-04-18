@@ -56,6 +56,13 @@
     <p><a href="${pageContext.request.contextPath}/menu/add" class="btn">Add New Menu Item</a></p>
 </c:if>
 
+<!-- Add this near the other buttons at the top -->
+<c:if test="${not isAdmin}">
+    <form action="${pageContext.request.contextPath}/confirm-order" method="post" style="display:inline;">
+        <button type="submit" class="btn" style="background-color: #2196F3;">Confirm Order</button>
+    </form>
+</c:if>
+
 <table>
     <thead>
     <tr>
@@ -95,9 +102,16 @@
                     </form>
                 </td>
             </c:if>
+            <td class="actions">
+                <form method="post" action="${pageContext.request.contextPath}/menu" target="hiddenFrame" style="display:inline;">
+                    <input type="hidden" name="food_id" value="${item.foodId}">
+                    <button type="submit" class="btn">Print</button>
+                </form>
+            </td>
         </tr>
     </c:forEach>
     </tbody>
+    <iframe name="hiddenFrame" style="display:none;"></iframe>
 </table>
 </body>
 </html>

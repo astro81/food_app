@@ -24,6 +24,7 @@ public class UserDAOHelpers {
      */
     public static UserModel mapResultSetToUser(ResultSet rs) throws SQLException {
         return new UserModel(
+                rs.getInt("user_id"),
                 rs.getString("user_name"),     // Get username from result
                 rs.getString("user_mail"),     // Get email from result
                 rs.getString("user_passwd"),   // Get password from result
