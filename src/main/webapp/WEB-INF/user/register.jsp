@@ -11,16 +11,18 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
+            margin-top: 0;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
         .container {
             max-width: 500px;
-            margin: 0 auto;
             background: #fff;
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            /* Center the container */
+            margin: 50px auto;
         }
         h2 {
             text-align: center;
@@ -45,8 +47,8 @@
             box-sizing: border-box;
         }
         button {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #EBD9c7;
+            color: black;
             padding: 10px 15px;
             border: none;
             border-radius: 4px;
@@ -55,7 +57,8 @@
             font-size: 16px;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #A68667;
+            color: black;
         }
         .notification {
             margin: 15px 0;
