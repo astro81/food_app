@@ -2,6 +2,10 @@ package servlets.order;
 
 import servlets.menu.MenuConstant;
 
+/**
+ * Constants used across the order-related servlets and views.
+ * Contains view paths, parameter names, and notification messages.
+ */
 public class OrderConstant {
     // View configuration
     public static final String ORDER_PREVIEW_PAGE = "/WEB-INF/order/order-preview.jsp";
