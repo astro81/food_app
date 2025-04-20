@@ -1,27 +1,89 @@
-<%-- WEB-INF/templates/navbar.jsp --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Bar</title>
+    <style>
+        * {
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
-<nav style="background-color: #2c3e50; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;">
-    <div style="display: flex; align-items: center; gap: 30px;">
-        <a href="${pageContext.request.contextPath}/" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.2rem;">Home</a>
-        <a href="${pageContext.request.contextPath}/menu" style="color: white; text-decoration: none; font-size: 1.1rem;">Menu</a>
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        .logo img {
+            height: 100%;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: right;
+            flex-grow: 1;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .cart {
+            font-size: 24px;
+        }
+
+        .cart a {
+            color: #000;
+            text-decoration: none;
+        }
+        .login{
+            background-color: #EBD9c7;
+            color: black;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .login:hover{
+            background-color: #A68667 ;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo">
+        <img src="${pageContext.request.contextPath}/images/logo.png" alt="Order Now Logo" style="border-radius: 8px;">
     </div>
-
-    <div>
-        <c:choose>
-            <c:when test="${not empty sessionScope.user}">
-                <a href="${pageContext.request.contextPath}/user/profile"
-                   style="color: white; text-decoration: none; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; transition: all 0.3s ease;">
-                    <span style="font-weight: 500;">${sessionScope.user.userName}</span>
-                </a>
-            </c:when>
-            <c:otherwise>
-                <a href="${pageContext.request.contextPath}/user/login"
-                   style="color: white; text-decoration: none; background: #3498db; padding: 8px 20px; border-radius: 4px; transition: all 0.3s ease;">
-                    Login
-                </a>
-            </c:otherwise>
-        </c:choose>
+    <div class="nav-links">
+        <a href="${pageContext.request.contextPath}/index.jsp">Home</a>
+        <a href="${pageContext.request.contextPath}/menu">Menu</a>
+        <a href="${pageContext.request.contextPath}/profile.jsp">Profile</a>
+        <a href="${pageContext.request.contextPath}/user/login"><button class="login">Login</button></a>
+    </div>
+    <div class="cart">
+        <a href="${pageContext.request.contextPath}/cart.jsp">🛒</a>
     </div>
 </nav>
+
+<!-- Page content goes here -->
+
+</body>
+</html>

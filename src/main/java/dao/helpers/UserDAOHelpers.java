@@ -1,6 +1,7 @@
 package dao.helpers;
 
 import model.UserModel;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,5 +33,25 @@ public class UserDAOHelpers {
                 rs.getString("user_address"),  // Get address from result
                 rs.getString("user_role")      // Get role from result
         );
+    }
+    /**
+     * Hashes a plain text password using BCrypt.
+     *
+     * @param plainPassword The plain password to hash
+     * @return The hashed password string
+     */
+    public static String hashPassword(String plainPassword) {
+        return BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+    }
+
+    /**
+     * Verifies a plain text password against a hashed password.
+     *
+     * @param plainPassword The plain password entered by user
+     * @param hashedPassword The hashed password stored in DB
+     * @return true if the passwords match, false otherwise
+     */
+    public static boolean checkPassword(String plainPassword, String hashedPassword) {
+        return BCrypt.checkpw(plainPassword, hashedPassword);
     }
 }
