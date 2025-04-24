@@ -1,9 +1,12 @@
 package dao;
 
+import model.OrderModel;
 import model.UserModel;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static dao.helpers.ConnectionHelper.prepareStatement;
 import static dao.helpers.UserDAOHelpers.*;
@@ -81,5 +84,30 @@ public class UserDAO {
             pst.setString(1, userMail);
             return pst.executeUpdate() > 0;
         }
+    }
+
+    // Add to UserDAO.java
+    private static final String GET_ORDER_HISTORY_QUERY =
+            "SELECT o.order_id, o.order_date, o.total, o.status " +
+                    "FROM orders o " +
+                    "WHERE o.user_id = ? AND o.status = 'confirmed' " +
+                    "ORDER BY o.order_date DESC";
+
+    public static List<OrderModel> getOrderHistory(int userId) throws SQLException {
+        List<OrderModel> orders = new ArrayList<>();
+        try (PreparedStatement pst = prepareStatement(GET_ORDER_HISTORY_QUERY)) {
+            pst.setInt(1, userId);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    OrderModel order = new OrderModel();
+                    order.setOrderId(rs.getInt("order_id"));
+                    order.setOrderDate(rs.getTimestamp("order_date"));
+                    order.setTotal(rs.getBigDecimal("total"));
+                    order.setStatus(rs.getString("status"));
+                    orders.add(order);
+                }
+            }
+        }
+        return orders;
     }
 }

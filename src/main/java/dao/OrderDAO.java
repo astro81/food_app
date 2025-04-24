@@ -36,6 +36,11 @@ public class OrderDAO {
     private static final String UPDATE_ORDER_STATUS_QUERY =
             "UPDATE orders SET status = 'confirmed' WHERE order_id = ?";
 
+    // New query for getting a specific order by ID
+    private static final String SELECT_ORDER_BY_ID_QUERY =
+            "SELECT * FROM orders WHERE order_id = ?";
+
+
     public static void createOrder(int userId, MenuItemModel item) throws SQLException {
         OrderModel pendingOrder = getPendingOrder(userId);
         if (pendingOrder == null) {
@@ -153,5 +158,26 @@ public class OrderDAO {
                 }
             }
         }
+    }
+
+    /**
+     * Retrieves an order by its ID.
+     *
+     * @param orderId The ID of the order to retrieve
+     * @return The OrderModel if found, null otherwise
+     * @throws SQLException if there's a database access error
+     */
+    public static OrderModel getOrderById(int orderId) throws SQLException {
+        try (PreparedStatement pst = prepareStatement(SELECT_ORDER_BY_ID_QUERY)) {
+            pst.setInt(1, orderId);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    OrderModel order = OrderDAOHelpers.mapResultSetToOrder(rs);
+                    loadOrderItems(order);
+                    return order;
+                }
+            }
+        }
+        return null;
     }
 }

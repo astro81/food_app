@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <c:import url="/WEB-INF/templates/navbar.jsp" />
 
 <!DOCTYPE html>
@@ -22,7 +23,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h2 {
+        h2, h3 {
             color: #333;
         }
         .user-info {
@@ -88,6 +89,27 @@
             padding: 15px;
             background-color: #f0f0f0;
             border-radius: 4px;
+        }
+
+        /* Order history styles */
+        .order-history {
+            margin: 30px 0;
+        }
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .order-table th, .order-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .order-table th {
+            background-color: #f5f5f5;
+        }
+        .order-row:hover {
+            background-color: #f9f9f9;
         }
     </style>
 </head>
@@ -158,6 +180,43 @@
             <input type="hidden" name="action" value="delete">
             <button type="submit" class="btn btn-danger">Delete Account</button>
         </form>
+    </div>
+
+    <!-- Order History Section -->
+    <div class="order-history">
+        <h3>Order History</h3>
+        <c:choose>
+            <c:when test="${empty orderHistory}">
+                <p>You don't have any completed orders yet.</p>
+            </c:when>
+            <c:otherwise>
+                <table class="order-table">
+                    <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <c:forEach var="order" items="${orderHistory}">
+                        <tr class="order-row">
+                            <td>${order.orderId}</td>
+                            <td><fmt:formatDate value="${order.orderDate}" pattern="MMM dd, yyyy HH:mm" /></td>
+                            <td>$<fmt:formatNumber value="${order.total}" pattern="#,##0.00" /></td>
+                            <td>${order.status}</td>
+                            <td>
+                                <a href="${pageContext.request.contextPath}/order/details?orderId=${order.orderId}"
+                                   class="btn btn-primary">View Details</a>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </c:otherwise>
+        </c:choose>
     </div>
 
     <script>

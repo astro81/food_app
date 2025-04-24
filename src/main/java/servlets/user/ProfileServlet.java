@@ -1,95 +1,60 @@
 package servlets.user;
 
-import java.io.*;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-
 import dao.UserDAO;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
 import model.UserModel;
+import model.OrderModel;
 import servlets.user.handlers.DeleteProfileHandler;
 import servlets.user.handlers.ProfileHandler;
 import servlets.user.handlers.UpdateProfileHandler;
 
-/**
- * Main servlet for handling user profile operations.
- * <p>
- * This servlet acts as a controller that routes requests to appropriate handlers
- * based on the action parameter. It supports:
- * <ul>
- *   <li>GET requests for viewing profile information</li>
- *   <li>POST requests with 'update' action for profile modifications</li>
- *   <li>POST requests with 'delete' action for account deletion</li>
- * </ul>
- *
- * <p><strong>Security Note:</strong>
- * All operations require an active session with authenticated user.
- */
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
 @WebServlet(
         name = "ProfileServlet",
         value = "/user/profile",
         description = "Controller for user profile operations"
 )
 public class ProfileServlet extends HttpServlet {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
     private Map<String, ProfileHandler> handlers;
 
-    /**
-     * Initializes the servlet and its handler mappings.
-     * <p>
-     * Creates a new UserDAO instance and registers handler implementations
-     * for supported actions.
-     */
     @Override
     public void init() {
-        // Dependencies
         UserDAO userDao = new UserDAO();
         this.handlers = new HashMap<>();
         this.handlers.put(UserConstant.ACTION_UPDATE, new UpdateProfileHandler(userDao));
         this.handlers.put(UserConstant.ACTION_DELETE, new DeleteProfileHandler(userDao));
     }
 
-    /**
-     * Handles HTTP GET requests for profile viewing.
-     *
-     * @param request  the HttpServletRequest object
-     * @param response the HttpServletResponse object
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (isUserAuthenticated(session)) {
+            UserModel currentUser = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
+            try {
+                // Load order history for the user
+                List<OrderModel> orderHistory = UserDAO.getOrderHistory(currentUser.getUserId());
+                request.setAttribute("orderHistory", orderHistory);
+            } catch (SQLException e) {
+                request.setAttribute("NOTIFICATION", "Error loading order history: " + e.getMessage());
+            }
+        }
         request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
     }
 
-    /**
-     * Handles HTTP POST requests for profile modifications.
-     * <p>
-     * Routes requests to appropriate handlers based on the 'action' parameter.
-     * Valid actions are 'update' and 'delete'. All other actions result in
-     * an error notification.
-     *
-     * @param request  the HttpServletRequest object
-     * @param response the HttpServletResponse object
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         HttpSession session = request.getSession(false);
-
-        // Verify user authentication
         if (!isUserAuthenticated(session)) {
-            response.sendRedirect(request.getContextPath() + UserConstant.LOGIN_PATH +
-                    "?error=" + UserConstant.MSG_SESSION_EXPIRED);
+            response.sendRedirect(request.getContextPath() + UserConstant.LOGIN_PATH);
             return;
         }
 
@@ -97,28 +62,19 @@ public class ProfileServlet extends HttpServlet {
         String action = request.getParameter(UserConstant.PARAM_ACTION);
 
         try {
-            // Route to appropriate handler
             ProfileHandler handler = handlers.get(action);
             if (handler != null) {
                 handler.handle(request, response, currentUser, session);
             } else {
                 request.setAttribute("NOTIFICATION", UserConstant.MSG_INVALID_ACTION);
-                request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
+                doGet(request, response);
             }
         } catch (SQLException e) {
-            // Handle database errors
-            e.printStackTrace();
             request.setAttribute("NOTIFICATION", UserConstant.MSG_DB_ERROR + ": " + e.getMessage());
-            request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
+            doGet(request, response);
         }
     }
 
-    /**
-     * Validates user authentication status.
-     *
-     * @param session the current HttpSession
-     * @return true if session exists and contains a valid user object
-     */
     private boolean isUserAuthenticated(HttpSession session) {
         return session != null && session.getAttribute(UserConstant.ATTR_USER) != null;
     }
