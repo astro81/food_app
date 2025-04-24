@@ -11,10 +11,6 @@ import model.UserModel;
 import java.io.IOException;
 import java.sql.SQLException;
 
-/**
- * Servlet implementation for previewing a user's pending order.
- * Handles GET requests to show the current order items before confirmation.
- */
 @WebServlet(
         name = "MakeOrderServlet",
         value = "/make-order",
@@ -22,15 +18,6 @@ import java.sql.SQLException;
 )
 public class MakeOrderServlet extends BaseOrderServlet {
 
-    /**
-     * Handles GET requests to display the user's pending order.
-     * Redirects to menu if order is empty or user is not authenticated.
-     *
-     * @param request  The HTTP request
-     * @param response The HTTP response
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException      If an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -60,13 +47,7 @@ public class MakeOrderServlet extends BaseOrderServlet {
         }
     }
 
-    /**
-     * Checks if an order is empty or null.
-     *
-     * @param order The order to check
-     * @return true if the order is empty or null, false otherwise
-     */
     private boolean isEmptyOrder(OrderModel order) {
-        return order == null || order.getItems().isEmpty();
+        return order == null || order.getItemsWithQuantities().isEmpty();
     }
 }

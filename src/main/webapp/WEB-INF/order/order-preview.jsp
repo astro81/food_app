@@ -14,12 +14,12 @@
         <th>Quantity</th>
         <th>Subtotal</th>
     </tr>
-    <c:forEach items="${order.items}" var="orderItem">
+    <c:forEach items="${order.itemsWithQuantities}" var="entry">
         <tr>
-            <td>${orderItem.item.foodName}</td>
-            <td><fmt:formatNumber value="${orderItem.item.foodPrice}" type="currency"/></td>
-            <td>${orderItem.quantity}</td>
-            <td><fmt:formatNumber value="${orderItem.item.foodPrice * orderItem.quantity}" type="currency"/></td>
+            <td>${entry.key.foodName}</td>
+            <td><fmt:formatNumber value="${entry.key.foodPrice}" type="currency"/></td>
+            <td>${entry.value}</td>
+            <td><fmt:formatNumber value="${order.subtotals[entry.key]}" type="currency"/></td>
         </tr>
     </c:forEach>
     <tr>
