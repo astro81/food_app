@@ -19,6 +19,7 @@ public class UserConstant {
     static final String PARAM_ACTION = "action";
     static final String ACTION_UPDATE = "update";
     static final String ACTION_DELETE = "delete";
+    public static final String ACTION_DELETE_ORDER = "deleteOrder";
 
     // Session attribute names
     public static final String ATTR_USER = "user";

@@ -200,6 +200,7 @@
                         <th>Action</th>
                     </tr>
                     </thead>
+
                     <tbody>
                     <c:forEach var="order" items="${orderHistory}">
                         <tr class="order-row">
@@ -210,10 +211,18 @@
                             <td>
                                 <a href="${pageContext.request.contextPath}/order/details?orderId=${order.orderId}"
                                    class="btn btn-primary">View Details</a>
+                                <form action="${pageContext.request.contextPath}/user/profile" method="post"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this order? This cannot be undone.');">
+                                    <input type="hidden" name="action" value="deleteOrder">
+                                    <input type="hidden" name="orderId" value="${order.orderId}">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     </c:forEach>
                     </tbody>
+
                 </table>
             </c:otherwise>
         </c:choose>

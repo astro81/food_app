@@ -8,6 +8,8 @@ import model.OrderModel;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static dao.helpers.ConnectionHelper.prepareStatement;
@@ -38,7 +40,7 @@ public class OrderDAO {
 
     // New query for getting a specific order by ID
     private static final String SELECT_ORDER_BY_ID_QUERY =
-            "SELECT * FROM orders WHERE order_id = ?";
+            "SELECT * FROM orders WHERE order_id = ? ORDER BY order_date DESC";
 
 
     public static void createOrder(int userId, MenuItemModel item) throws SQLException {
@@ -173,11 +175,80 @@ public class OrderDAO {
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     OrderModel order = OrderDAOHelpers.mapResultSetToOrder(rs);
-                    loadOrderItems(order);
+                    loadOrderItems(order); // Load the items for each order
                     return order;
                 }
             }
         }
         return null;
     }
+
+    private static final String DELETE_ORDER_ITEMS_QUERY =
+            "DELETE FROM order_items WHERE order_id = ?";
+
+    private static final String DELETE_ORDER_QUERY =
+            "DELETE FROM orders WHERE order_id = ? AND user_id = ?";
+
+    /**
+     * Deletes an order and its items from the database.
+     * Ensures user can only delete their own orders.
+     *
+     * @param orderId The ID of the order to delete
+     * @param userId The ID of the user attempting to delete the order
+     * @return boolean indicating success (true) or failure (false)
+     * @throws SQLException if there's a database access error
+     */
+    public static boolean deleteOrder(int orderId, int userId) throws SQLException {
+        Connection conn = null;
+        PreparedStatement deleteItemsStmt = null;
+        PreparedStatement deleteOrderStmt = null;
+        boolean success = false;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // First delete the order items
+            deleteItemsStmt = conn.prepareStatement(DELETE_ORDER_ITEMS_QUERY);
+            deleteItemsStmt.setInt(1, orderId);
+            deleteItemsStmt.executeUpdate();
+
+            // Then delete the order itself
+            deleteOrderStmt = conn.prepareStatement(DELETE_ORDER_QUERY);
+            deleteOrderStmt.setInt(1, orderId);
+            deleteOrderStmt.setInt(2, userId);
+
+            int rowsAffected = deleteOrderStmt.executeUpdate();
+            success = rowsAffected > 0;
+
+            if (success) {
+                conn.commit();
+            } else {
+                conn.rollback();
+            }
+
+            return success;
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    throw new SQLException("Error rolling back transaction", ex);
+                }
+            }
+            throw e;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (deleteItemsStmt != null) try { deleteItemsStmt.close(); } catch (SQLException e) {}
+            if (deleteOrderStmt != null) try { deleteOrderStmt.close(); } catch (SQLException e) {}
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {}
+            }
+        }
+    }
+
 }

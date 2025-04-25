@@ -6,12 +6,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.UserModel;
 import model.OrderModel;
+import servlets.user.handlers.DeleteOrderHandler;
 import servlets.user.handlers.DeleteProfileHandler;
 import servlets.user.handlers.ProfileHandler;
 import servlets.user.handlers.UpdateProfileHandler;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,12 +32,16 @@ public class ProfileServlet extends HttpServlet {
         this.handlers = new HashMap<>();
         this.handlers.put(UserConstant.ACTION_UPDATE, new UpdateProfileHandler(userDao));
         this.handlers.put(UserConstant.ACTION_DELETE, new DeleteProfileHandler(userDao));
+        this.handlers.put(UserConstant.ACTION_DELETE_ORDER, new DeleteOrderHandler());
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
+
+        request.setAttribute("orderHistory", new ArrayList<OrderModel>());
+
         if (isUserAuthenticated(session)) {
             UserModel currentUser = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
             try {
