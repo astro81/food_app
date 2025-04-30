@@ -5,11 +5,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import model.UserModel;
 import org.mindrot.jbcrypt.BCrypt;
 import servlets.user.UserConstant;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 
 /**
@@ -51,8 +53,18 @@ public class UpdateProfileHandler implements ProfileHandler {
         String userAddress = request.getParameter(UserConstant.PARAM_ADDRESS);
         String userPasswd = request.getParameter(UserConstant.PARAM_PASSWORD);
 
+        // Handle file upload
+        Part filePart = request.getPart("profilePicture");
+        byte[] profilePicture = null;
+
+        if (filePart != null && filePart.getSize() > 0) {
+            try (InputStream fileContent = filePart.getInputStream()) {
+                profilePicture = fileContent.readAllBytes();
+            }
+        }
+
         // Create updated user model with validated data
-        UserModel updatedUser = createUpdatedUserModel(currentUser, userName, userPhone, userAddress, userPasswd);
+        UserModel updatedUser = createUpdatedUserModel(currentUser, userName, userPhone, userAddress, userPasswd, profilePicture);
 
         // Attempt database update
         boolean updateSuccess = userDao.updateUser(currentUser.getUserMail(), updatedUser);
@@ -79,20 +91,29 @@ public class UpdateProfileHandler implements ProfileHandler {
      * @param userPasswd new password (null or empty retains current)
      * @return updated UserModel instance
      */
-    private UserModel createUpdatedUserModel(UserModel currentUser, String userName, String userPhone, String userAddress, String userPasswd) {
+    private UserModel createUpdatedUserModel(UserModel currentUser, String userName, String userPhone, String userAddress, String userPasswd, byte[] profilePicture) {
         // Handle password hashing if password is being changed else password remains unchanged
         String hashedPasswd = isPasswordChanged(userPasswd)
                 ? BCrypt.hashpw(userPasswd, BCrypt.gensalt())
                 : currentUser.getUserPasswd();
 
-        return new UserModel(
-                userName != null ? userName : currentUser.getUserName(),                           // Use new name if provided, otherwise keep current
-                currentUser.getUserMail(),                                                         // Email remains unchanged as it's used as identifier
-                hashedPasswd,                                                                     // Hashed password or existing hash
-                userPhone != null ? userPhone : currentUser.getUserPhone(),                        // Use new phone if provided, otherwise keep current
-                userAddress != null ? userAddress : currentUser.getUserAddress(),                  // Use new address if provided, otherwise keep current
-                currentUser.getUserRole()                                                          // Role remains unchanged
+        UserModel updatedUser = new UserModel(
+                userName != null ? userName : currentUser.getUserName(),
+                currentUser.getUserMail(),
+                hashedPasswd,
+                userPhone != null ? userPhone : currentUser.getUserPhone(),
+                userAddress != null ? userAddress : currentUser.getUserAddress(),
+                currentUser.getUserRole()
         );
+
+        // Set profile picture if provided, otherwise keep existing one
+        if (profilePicture != null) {
+            updatedUser.setProfilePicture(profilePicture);
+        } else {
+            updatedUser.setProfilePicture(currentUser.getProfilePicture());
+        }
+
+        return updatedUser;
     }
 
     /**

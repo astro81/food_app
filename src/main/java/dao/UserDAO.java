@@ -20,6 +20,7 @@ public class UserDAO {
     private static final String LOGIN_QUERY = "SELECT * FROM users WHERE user_mail = ?";
     private static final String UPDATE_QUERY = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
     private static final String DELETE_QUERY = "DELETE FROM users WHERE user_mail = ?";
+    private static final String UPDATE_WITH_PICTURE_QUERY = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ?, profile_picture = ? WHERE user_mail = ?";
 
     /**
      * Registers a new user in the database.
@@ -61,14 +62,27 @@ public class UserDAO {
      * @throws SQLException if there's a database access error
      */
     public boolean updateUser(String currentEmail, UserModel updatedUser) throws SQLException {
-        try (PreparedStatement pst = prepareStatement(UPDATE_QUERY)) {
-            pst.setString(1, updatedUser.getUserName());
-            pst.setString(2, updatedUser.getUserPasswd());
-            pst.setString(3, updatedUser.getUserPhone());
-            pst.setString(4, updatedUser.getUserAddress());
-            pst.setString(5, currentEmail);
-
-            return pst.executeUpdate() > 0;
+        if (updatedUser.getProfilePicture() != null) {
+            // Update with profile picture
+            try (PreparedStatement pst = prepareStatement(UPDATE_WITH_PICTURE_QUERY)) {
+                pst.setString(1, updatedUser.getUserName());
+                pst.setString(2, updatedUser.getUserPasswd());
+                pst.setString(3, updatedUser.getUserPhone());
+                pst.setString(4, updatedUser.getUserAddress());
+                pst.setBytes(5, updatedUser.getProfilePicture());
+                pst.setString(6, currentEmail);
+                return pst.executeUpdate() > 0;
+            }
+        } else {
+            // Update without profile picture
+            try (PreparedStatement pst = prepareStatement(UPDATE_QUERY)) {
+                pst.setString(1, updatedUser.getUserName());
+                pst.setString(2, updatedUser.getUserPasswd());
+                pst.setString(3, updatedUser.getUserPhone());
+                pst.setString(4, updatedUser.getUserAddress());
+                pst.setString(5, currentEmail);
+                return pst.executeUpdate() > 0;
+            }
         }
     }
 

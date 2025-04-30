@@ -2,6 +2,7 @@ package servlets.user;
 
 import dao.UserDAO;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.UserModel;
@@ -22,6 +23,11 @@ import java.util.Map;
         name = "ProfileServlet",
         value = "/user/profile",
         description = "Controller for user profile operations"
+)
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024, // 1 MB
+        maxFileSize = 1024 * 1024 * 20,      // 10 MB
+        maxRequestSize = 1024 * 1024 * 100   // 100 MB
 )
 public class ProfileServlet extends HttpServlet {
     private Map<String, ProfileHandler> handlers;

@@ -31,9 +31,11 @@ public class UserDAOHelpers {
                 rs.getString("user_passwd"),   // Get password from result
                 rs.getString("user_phone"),    // Get phone from result
                 rs.getString("user_address"),  // Get address from result
-                rs.getString("user_role")      // Get role from result
+                rs.getString("user_role"),      // Get role from result
+                rs.getBytes("profile_picture") // Add profile picture
         );
     }
+
     /**
      * Hashes a plain text password using BCrypt.
      *

@@ -13,6 +13,7 @@ public class UserModel {
     private String userPhone;    // User's phone number
     private String userAddress;  // User's physical address
     private String userRole;
+    private byte[] profilePicture;
 
     /**
      * Constructor to create a new UserModel with all attributes.
@@ -33,7 +34,7 @@ public class UserModel {
         this.userRole = userRole;
     }
 
-    public UserModel(int userId, String userName, String userMail, String userPasswd, String userPhone, String userAddress, String userRole) {
+    public UserModel(int userId, String userName, String userMail, String userPasswd, String userPhone, String userAddress, String userRole, byte[] profilePicture) {
         this.userId = userId;
         this.userName = userName;
         this.userMail = userMail;
@@ -41,6 +42,7 @@ public class UserModel {
         this.userPhone = userPhone;
         this.userAddress = userAddress;
         this.userRole = userRole;
+        this.profilePicture = profilePicture;
     }
 
     public int getUserId() {
@@ -86,4 +88,10 @@ public class UserModel {
 
     /** @param userRole User's role to set */
     public void setUserRole(String userRole) { this.userRole = userRole; }
+
+    /** @return User's profile picture */
+    public byte[] getProfilePicture() { return profilePicture; }
+
+    /** @param profilePicture User's profile picture to set */
+    public void setProfilePicture(byte[] profilePicture) { this.profilePicture = profilePicture; }
 }

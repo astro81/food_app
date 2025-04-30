@@ -15,6 +15,7 @@ public class UserConstant {
     public static final String PARAM_PASSWORD = "user_passwd";
     public static final String PARAM_PHONE = "user_phone";
     public static final String PARAM_ADDRESS = "user_address";
+    public static final String PARAM_PROFILE_PICTURE = "profilePicture";
 
     static final String PARAM_ACTION = "action";
     static final String ACTION_UPDATE = "update";

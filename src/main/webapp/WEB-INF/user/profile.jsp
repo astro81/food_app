@@ -7,6 +7,8 @@
 <head>
     <meta charset="UTF-8">
     <title>User Profile</title>
+
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -110,6 +112,88 @@
         .order-row:hover {
             background-color: #f9f9f9;
         }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .profile-picture-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            max-width: 80%;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .preview-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        #imagePreview {
+            max-width: 200px;
+            max-height: 200px;
+            display: none;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -136,6 +220,57 @@
     <% } else {
         model.UserModel user = (model.UserModel) session.getAttribute("user");
     %>
+
+<%--    <!-- Profile Picture Section -->--%>
+<%--    <div class="profile-picture-section">--%>
+<%--        <img src="${pageContext.request.contextPath}/user/profile-picture"--%>
+<%--             alt="Profile Picture" class="profile-picture">--%>
+
+<%--        <form action="${pageContext.request.contextPath}/user/profile"--%>
+<%--              method="post" enctype="multipart/form-data">--%>
+<%--            <input type="hidden" name="action" value="update">--%>
+<%--            <input type="file" name="profilePicture" accept="image/*">--%>
+<%--            <button type="submit" class="btn btn-primary">Update Profile Picture</button>--%>
+<%--        </form>--%>
+<%--    </div>--%>
+    <!-- Profile Picture Section -->
+    <div class="profile-picture-section">
+        <img src="${pageContext.request.contextPath}/user/profile-picture"
+             alt="Profile Picture" class="profile-picture">
+
+        <button id="change-picture-btn" class="btn btn-primary">Change Profile Picture</button>
+    </div>
+
+    <!-- The Modal -->
+    <div id="pictureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Update Profile Picture</h3>
+                <span class="close">&times;</span>
+            </div>
+
+            <form id="pictureForm" action="${pageContext.request.contextPath}/user/profile"
+                  method="post" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="update">
+
+                <div class="form-group">
+                    <label for="profilePicture">Select an image:</label>
+                    <input type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
+                </div>
+
+                <div class="preview-container">
+                    <img id="imagePreview" src="#" alt="Preview">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <div class="user-info">
         <p><strong>Name:</strong> <span id="display-name"><%= user.getUserName() %></span></p>
         <p><strong>Email:</strong> <%= user.getUserMail() %></p>
@@ -230,6 +365,73 @@
     </div>
 
     <script>
+        document.getElementById('edit-btn').addEventListener('click', function() {
+            document.getElementById('edit-form').style.display = 'block';
+            this.style.display = 'none';
+        });
+
+        document.getElementById('cancel-btn').addEventListener('click', function() {
+            document.getElementById('edit-form').style.display = 'none';
+            document.getElementById('edit-btn').style.display = 'inline-block';
+        });
+    </script>
+
+    <script>
+        // Modal functionality
+        const modal = document.getElementById("pictureModal");
+        const btn = document.getElementById("change-picture-btn");
+        const span = document.getElementsByClassName("close")[0];
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        // Open modal when button is clicked
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // Close modal when X is clicked
+        span.onclick = function() {
+            modal.style.display = "none";
+            resetForm();
+        }
+
+        // Close modal when cancel button is clicked
+        cancelBtn.onclick = function() {
+            modal.style.display = "none";
+            resetForm();
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                resetForm();
+            }
+        }
+
+        // Image preview functionality
+        document.getElementById('profilePicture').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Reset form when modal is closed
+        function resetForm() {
+            document.getElementById('pictureForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').src = '#';
+        }
+
+        // Existing edit form scripts
         document.getElementById('edit-btn').addEventListener('click', function() {
             document.getElementById('edit-form').style.display = 'block';
             this.style.display = 'none';
