@@ -105,13 +105,17 @@ public class RegistrationServlet extends HttpServlet {
         try {
             // Attempt registration
             if (userDAO.registerUser(user)) {
-                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_SUCCESS);
+                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_REGISTER_SUCCESS);
+                request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_SUCCESS);
+
             } else {
-                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_FAILURE);
+                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_REGISTER_FAILED);
+                request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
             }
         } catch (Exception e) {
-            // Error handling
-            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_ERROR + e.getMessage());
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_DB_ERROR + e.getMessage());
+            request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
+
             e.printStackTrace();
         }
 

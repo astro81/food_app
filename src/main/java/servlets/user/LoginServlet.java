@@ -103,16 +103,22 @@ public class LoginServlet extends HttpServlet {
                 request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
             } else {
                 // Authentication failure
-                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_AUTH_FAILED);
+                request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_LOGIN_FAILED);
+                request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
+
                 request.getRequestDispatcher(UserConstant.LOGIN_PAGE).forward(request, response);
             }
         } catch (SQLException e) {
             // Database error handling
             request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_DB_ERROR + e.getMessage());
+            request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
+
             request.getRequestDispatcher(UserConstant.LOGIN_PAGE).forward(request, response);
         } catch (Exception e) {
             // Generic error handling
-            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_ERROR + e.getMessage());
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.NOTIFICATION_ERROR + " " + e.getMessage());
+            request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
+
             request.getRequestDispatcher(UserConstant.LOGIN_PAGE).forward(request, response);
         }
     }

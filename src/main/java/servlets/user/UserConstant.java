@@ -26,15 +26,19 @@ public class UserConstant {
 
     // Notification attributes
     public static final String MSG_NOTIFICATION = "NOTIFICATION";
-    static final String MSG_SUCCESS = "User Registered Successfully!";
+    public static final String NOTIFICATION_TYPE = "NOTIFICATION_TYPE";
+    public static final String NOTIFICATION_SUCCESS = "SUCCESS";
+    public static final String NOTIFICATION_ERROR = "ERROR";
+
+    public static final String MSG_REGISTER_SUCCESS = "User Registered Successfully!";
+    public static final String MSG_REGISTER_FAILED = "Registration Failed!";
+    public static final String MSG_LOGIN_FAILED = "Invalid email or password!";
+
     public static final String MSG_DELETE_SUCCESS = "Account deleted successfully";
     public static final String MSG_DELETE_FAILED = "Failed to delete account!";
     public static final String MSG_UPDATE_SUCCESS = "Profile updated successfully!";
     public static final String MSG_UPDATE_FAILED = "Failed to update profile!";
 
-    static final String MSG_FAILURE = "Registration Failed!";
-    static final String MSG_ERROR = "Error: ";
-    static final String MSG_AUTH_FAILED = "Invalid email or password!";
     static final String MSG_DB_ERROR = "Database Error: ";
 
     // Notification messages
