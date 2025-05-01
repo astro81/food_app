@@ -42,7 +42,7 @@ public class EditMenuServlet extends BaseMenuServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Verify admin privileges
-        if (!isAdmin(request)) {
+        if (!isAuthorized(request)) {
             unauthorized(request, response);
             return;
         }
@@ -81,7 +81,7 @@ public class EditMenuServlet extends BaseMenuServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Verify admin privileges
-        if (!isAdmin(request)) {
+        if (!isAuthorized(request)) {
             unauthorized(request, response);
             return;
         }

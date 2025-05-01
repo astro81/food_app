@@ -83,7 +83,7 @@ public class UserModel {
     /** @param userAddress User's physical address to set */
     public void setUserAddress(String userAddress) { this.userAddress = userAddress; }
 
-    /** @return User's role (admin, customer) */
+    /** @return User's role (admin, customer, vendor) */
     public String getUserRole() { return userRole; }
 
     /** @param userRole User's role to set */

@@ -11,22 +11,35 @@ import java.io.IOException;
 
 /**
  * Authorization filter that verifies user permissions for protected resources.
- * Restricts access to admin-only paths to users with 'admin' role.
+ * Restricts access to paths based on user roles (admin, vendor, customer).
  * Returns HTTP 403 (Forbidden) for unauthorized access attempts.
  */
 public class AuthorizationFilter implements Filter {
 
     /**
      * List of URL paths that require admin privileges.
+     * Includes all admin management operations.
+     */
+    private static final String[] ADMIN_PATHS = {
+            "/admin/*",          // All admin paths
+            "/user/promote",     // User promotion
+            "/user/demote"       // User demotion
+    };
+
+    /**
+     * List of URL paths that require vendor privileges.
      * Includes all menu management operations:
      * - Adding menu items
      * - Editing menu items
      * - Deleting menu items
+     * - Viewing vendor-specific orders
      */
-    private static final String[] ADMIN_PATHS = {
-            "/menu/add",    // Menu item addition
-            "/menu/edit",    // Menu item editing
-            "/menu/delete"   // Menu item deletion
+    private static final String[] VENDOR_PATHS = {
+            "/menu/add",        // Menu item addition
+            "/menu/edit",       // Menu item editing
+            "/menu/delete",     // Menu item deletion
+            "/vendor/*",        // All vendor paths
+            "/orders/vendor"    // Vendor order view
     };
 
     /**
@@ -58,27 +71,20 @@ public class AuthorizationFilter implements Filter {
         // Get request path relative to context
         String path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
 
-        // Check if requested path requires admin privileges
+        // Check authorization based on path requirements
         if (requiresAdmin(path)) {
-            HttpSession session = httpRequest.getSession(false);
-
-            // Verify admin role in existing session
-            if (session != null) {
-                UserModel user = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
-                if (user != null && "admin".equals(user.getUserRole())) {
-                    // User is admin - proceed with request
-                    chain.doFilter(request, response);
-                    return;
-                }
+            if (!hasAdminAccess(httpRequest)) {
+                sendForbiddenResponse(httpResponse, "Admin privileges required");
+                return;
             }
-
-            // Not authorized - send 403 Forbidden response
-            httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
-                    "You don't have permission to access this resource");
-            return;
+        } else if (requiresVendor(path)) {
+            if (!hasVendorAccess(httpRequest)) {
+                sendForbiddenResponse(httpResponse, "Vendor privileges required");
+                return;
+            }
         }
 
-        // Path doesn't require admin privileges - proceed normally
+        // Proceed with the request if authorized
         chain.doFilter(request, response);
     }
 
@@ -89,13 +95,72 @@ public class AuthorizationFilter implements Filter {
      * @return true if path is in ADMIN_PATHS, false otherwise
      */
     private boolean requiresAdmin(String path) {
-        // Check against all admin-restricted paths
         for (String adminPath : ADMIN_PATHS) {
             if (path.startsWith(adminPath)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if the requested path requires vendor privileges.
+     *
+     * @param path The request path to check
+     * @return true if path is in VENDOR_PATHS, false otherwise
+     */
+    private boolean requiresVendor(String path) {
+        for (String vendorPath : VENDOR_PATHS) {
+            if (path.startsWith(vendorPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verifies if the current user has admin access.
+     *
+     * @param request The HttpServletRequest object
+     * @return true if user is admin, false otherwise
+     */
+    private boolean hasAdminAccess(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            UserModel user = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
+            return user != null && UserConstant.ROLE_ADMIN.equals(user.getUserRole());
+        }
+        return false;
+    }
+
+    /**
+     * Verifies if the current user has vendor access.
+     * Admins automatically have vendor privileges.
+     *
+     * @param request The HttpServletRequest object
+     * @return true if user is vendor or admin, false otherwise
+     */
+    private boolean hasVendorAccess(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            UserModel user = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
+            if (user != null) {
+                String role = user.getUserRole();
+                return UserConstant.ROLE_VENDOR.equals(role) || UserConstant.ROLE_ADMIN.equals(role);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sends a 403 Forbidden response with a custom message.
+     *
+     * @param response The HttpServletResponse object
+     * @param message  The error message to include
+     * @throws IOException If an I/O error occurs
+     */
+    private void sendForbiddenResponse(HttpServletResponse response, String message) throws IOException {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, message);
     }
 
     /**

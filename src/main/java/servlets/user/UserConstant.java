@@ -9,6 +9,10 @@ public class UserConstant {
     // Servlet path
     public static final String LOGIN_PATH = "/user/login";
 
+    public static final String VENDOR_DASHBOARD_PATH = "/vendor/dashboard";
+    public static final String ADMIN_DASHBOARD_PATH = "/admin/dashboard";
+    public static final String ADMIN_MANAGE_USERS_PATH = "/admin/users";
+
     // Request parameter names
     public static final String PARAM_NAME = "user_name";
     static final String PARAM_EMAIL = "user_mail";
@@ -24,6 +28,9 @@ public class UserConstant {
 
     // Session attribute names
     public static final String ATTR_USER = "user";
+    public static final String ROLE_ADMIN = "admin";
+    public static final String ROLE_VENDOR = "vendor";
+    public static final String ROLE_CUSTOMER = "customer";
 
     // Notification attributes
     public static final String MSG_NOTIFICATION = "NOTIFICATION";
@@ -45,5 +52,8 @@ public class UserConstant {
     // Notification messages
     static final String MSG_SESSION_EXPIRED = "Session expired. Please login again.";
     static final String MSG_INVALID_ACTION = "Invalid action requested!";
+
+    public static final String MSG_PROMOTE_SUCCESS = "User promoted to vendor successfully";
+    public static final String MSG_DEMOTE_SUCCESS = "User demoted to customer successfully";
 
 }

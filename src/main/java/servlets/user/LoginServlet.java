@@ -100,7 +100,15 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute(UserConstant.ATTR_USER, user);
 
                 // Forward to profile page (consider redirect for POST-REDIRECT-GET)
-                request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
+//                request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
+                // Redirect based on role
+                if (user.getUserRole().equals("admin")) {
+                    response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+                } else if (user.getUserRole().equals("vendor")) {
+                    response.sendRedirect(request.getContextPath() + "/vendor/dashboard");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/menu");
+                }
             } else {
                 // Authentication failure
                 request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_LOGIN_FAILED);

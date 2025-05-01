@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.MenuItemModel;
 import model.UserModel;
 import servlets.user.UserConstant;
 
@@ -37,36 +38,41 @@ public abstract class BaseMenuServlet extends HttpServlet {
      * @return true if the user is logged in and has 'admin' role, false otherwise
      */
     protected boolean isAdmin(HttpServletRequest request) {
-        // Retrieve existing session without creating a new one
-        HttpSession session = request.getSession(false);
-
-        // Check if session exists and contains a user object
-        if (session != null && session.getAttribute(UserConstant.ATTR_USER) != null) {
-            UserModel user = (UserModel) session.getAttribute(UserConstant.ATTR_USER);
-            return "admin".equals(user.getUserRole());
-        }
-        return false;
+        UserModel user = getCurrentUser(request);
+        return user != null && UserConstant.ROLE_ADMIN.equals(user.getUserRole());
     }
 
     /**
-     * Handles exceptions by logging them and forwarding to the menu list page with an error message.
+     * Checks if the current user has vendor privileges.
      *
-     * @param request The HttpServletRequest object
-     * @param response The HttpServletResponse object
-     * @param e The exception that occurred
-     * @throws ServletException If a servlet-specific error occurs
-//     * @throws IOException If an I/O error occurs
+     * @param request The HttpServletRequest containing the user's session
+     * @return true if the user is logged in and has 'vendor' role, false otherwise
      */
-    protected void handleError(HttpServletRequest request, HttpServletResponse response, Exception e)
-            throws ServletException, IOException {
-        // Log the exception stack trace
-        e.printStackTrace();
+    protected boolean isVendor(HttpServletRequest request) {
+        UserModel user = getCurrentUser(request);
+        return user != null && UserConstant.ROLE_VENDOR.equals(user.getUserRole());
+    }
 
-        // Set error message attribute
-        request.setAttribute(MenuConstant.MSG_NOTIFICATION, MenuConstant.MSG_DB_ERROR + e.getMessage());
+    /**
+     * Checks if the current user is authorized for menu management.
+     * Both admin and vendor roles are authorized.
+     *
+     * @param request The HttpServletRequest containing the user's session
+     * @return true if the user is admin or vendor, false otherwise
+     */
+    protected boolean isAuthorized(HttpServletRequest request) {
+        return isAdmin(request) || isVendor(request);
+    }
 
-        // Forward to menu list page to display error
-        forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
+    /**
+     * Retrieves the current user from the session.
+     *
+     * @param request The HttpServletRequest containing the session
+     * @return UserModel if user is logged in, null otherwise
+     */
+    protected UserModel getCurrentUser(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        return (session != null) ? (UserModel) session.getAttribute(UserConstant.ATTR_USER) : null;
     }
 
     /**
@@ -79,10 +85,23 @@ public abstract class BaseMenuServlet extends HttpServlet {
      */
     protected void unauthorized(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Set unauthorized access message
         request.setAttribute(MenuConstant.MSG_NOTIFICATION, MenuConstant.MSG_UNAUTHORIZED);
+        forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
+    }
 
-        // Forward to menu list page
+    /**
+     * Handles exceptions by logging them and forwarding to the menu list page with an error message.
+     *
+     * @param request The HttpServletRequest object
+     * @param response The HttpServletResponse object
+     * @param e The exception that occurred
+     * @throws ServletException If a servlet-specific error occurs
+     * @throws IOException If an I/O error occurs
+     */
+    protected void handleError(HttpServletRequest request, HttpServletResponse response, Exception e)
+            throws ServletException, IOException {
+        e.printStackTrace();
+        request.setAttribute(MenuConstant.MSG_NOTIFICATION, MenuConstant.MSG_DB_ERROR + e.getMessage());
         forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
     }
 
@@ -120,5 +139,22 @@ public abstract class BaseMenuServlet extends HttpServlet {
      */
     protected void setNotification(HttpServletRequest request, String message) {
         request.getSession().setAttribute(MenuConstant.MSG_NOTIFICATION, message);
+    }
+
+    /**
+     * Checks if the current user can edit the specified menu item.
+     * Admins can edit all items, vendors can only edit their own items.
+     *
+     * @param request The HttpServletRequest containing the user's session
+     * @param item The menu item to check
+     * @return true if user is authorized to edit the item, false otherwise
+     */
+    protected boolean canEditItem(HttpServletRequest request, MenuItemModel item) {
+        if (isAdmin(request)) {
+            return true;
+        }
+        // Add logic here if vendors have ownership of certain items
+        // For now, vendors can edit all items like admins
+        return isVendor(request);
     }
 }

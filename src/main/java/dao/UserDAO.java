@@ -1,5 +1,6 @@
 package dao;
 
+import dao.helpers.UserDAOHelpers;
 import model.OrderModel;
 import model.UserModel;
 import java.sql.PreparedStatement;
@@ -21,6 +22,14 @@ public class UserDAO {
     private static final String UPDATE_QUERY = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
     private static final String DELETE_QUERY = "DELETE FROM users WHERE user_mail = ?";
     private static final String UPDATE_WITH_PICTURE_QUERY = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ?, profile_picture = ? WHERE user_mail = ?";
+    private static final String GET_ALL_USERS_QUERY = "SELECT * FROM users";
+    private static final String UPDATE_ROLE_QUERY = "UPDATE users SET user_role = ? WHERE user_id = ?";
+    private static final String GET_ORDER_HISTORY_QUERY =
+            "SELECT o.order_id, o.order_date, o.total, o.status " +
+                    "FROM orders o " +
+                    "WHERE o.user_id = ? AND o.status = 'confirmed' " +
+                    "ORDER BY o.order_date DESC";
+
 
     /**
      * Registers a new user in the database.
@@ -100,12 +109,24 @@ public class UserDAO {
         }
     }
 
-    // Add to UserDAO.java
-    private static final String GET_ORDER_HISTORY_QUERY =
-            "SELECT o.order_id, o.order_date, o.total, o.status " +
-                    "FROM orders o " +
-                    "WHERE o.user_id = ? AND o.status = 'confirmed' " +
-                    "ORDER BY o.order_date DESC";
+    public List<UserModel> getAllUsers() throws SQLException {
+        List<UserModel> users = new ArrayList<>();
+        try (PreparedStatement pst = prepareStatement(GET_ALL_USERS_QUERY);
+             ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                users.add(UserDAOHelpers.mapResultSetToUser(rs));
+            }
+        }
+        return users;
+    }
+
+    public boolean updateUserRole(int userId, String newRole) throws SQLException {
+        try (PreparedStatement pst = prepareStatement(UPDATE_ROLE_QUERY)) {
+            pst.setString(1, newRole);
+            pst.setInt(2, userId);
+            return pst.executeUpdate() > 0;
+        }
+    }
 
     public static List<OrderModel> getOrderHistory(int userId) throws SQLException {
         List<OrderModel> orders = new ArrayList<>();

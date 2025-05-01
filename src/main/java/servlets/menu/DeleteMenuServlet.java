@@ -32,7 +32,7 @@ public class DeleteMenuServlet extends BaseMenuServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Verify admin privileges before processing
-        if (!isAdmin(request)) {
+        if (!isAuthorized(request)) {
             unauthorized(request, response);
             return;
         }
