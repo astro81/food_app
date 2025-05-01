@@ -41,6 +41,7 @@ public class ViewMenuServlet extends BaseMenuServlet {
         try {
             // Set admin status flag for view customization
             request.setAttribute("isAdmin", isAdmin(request));
+            request.setAttribute("isVendor", isVendor(request));
 
             // Retrieve all menu items from database
             List<MenuItemModel> menuItems = menuItemDAO.getAllMenuItems();

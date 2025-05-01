@@ -64,7 +64,7 @@
     </form>
 </div>
 
-<c:if test="${isAdmin}">
+<c:if test="${isAdmin or isVendor}">
     <p><a href="${pageContext.request.contextPath}/menu/add" class="btn">Add New Menu Item</a></p>
 </c:if>
 
@@ -76,7 +76,7 @@
 <%--</c:if>--%>
 
 <!-- Replace the confirm-order form with this -->
-<c:if test="${not isAdmin}">
+<c:if test="${not (isAdmin or isVendor)}">
     <form action="${pageContext.request.contextPath}/make-order" method="get" style="display:inline;">
         <button type="submit" class="btn" style="background-color: #2196F3;">Make Order</button>
     </form>
@@ -112,7 +112,7 @@
             <td>$${item.foodPrice}</td>
             <td>${item.foodCategory}</td>
             <td>${item.foodAvailability}</td>
-            <c:if test="${isAdmin}">
+            <c:if test="${isAdmin or isVendor}">
                 <td class="actions">
                     <a href="${pageContext.request.contextPath}/menu/edit?food_id=${item.foodId}" class="btn">Edit</a>
                     <form action="${pageContext.request.contextPath}/menu/delete" method="post" style="display:inline;">
