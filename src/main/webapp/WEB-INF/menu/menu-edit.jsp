@@ -1,4 +1,3 @@
-<%--WEB-INF/menu/menu-edit.jsp--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -51,6 +50,11 @@
             <input type="hidden" name="food_id" value="${menuItem.foodId}">
         </c:if>
 
+        <!-- Hidden vendor_id field that will be set automatically -->
+        <c:if test="${isVendor}">
+            <input type="hidden" name="vendor_id" value="${user.userId}">
+        </c:if>
+
         <div class="form-group">
             <label for="food_name">Name:</label>
             <input type="text" id="food_name" name="food_name" value="${menuItem.foodName}" required>
@@ -86,11 +90,9 @@
         </div>
 
         <div class="form-group">
-            <label for="food_image">Image URL:</label>
-            <input type="file" id="food_image" name="food_image" accept="image/*"
-                   value="${menuItem.foodImage}" placeholder="Enter image URL">
+            <label for="food_image">Image:</label>
+            <input type="file" id="food_image" name="food_image" accept="image/*">
             <c:if test="${not empty menuItem.foodImage}">
-<%--                <img src="${menuItem.foodImage}" alt="Current Image" class="image-preview">--%>
                 <div>Current Image:</div>
                 <img src="${pageContext.request.contextPath}/images/${menuItem.foodImage}"
                      alt="Current Image" class="image-preview">
@@ -106,14 +108,15 @@
 </div>
 
 <script>
-    // Simple image preview functionality
-    document.getElementById('food_image').addEventListener('input', function() {
+    document.getElementById('food_image').addEventListener('change', function(e) {
         const preview = document.querySelector('.image-preview');
-        if (this.value) {
-            preview.src = this.value;
-            preview.style.display = 'block';
-        } else {
-            preview.style.display = 'none';
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(this.files[0]);
         }
     });
 </script>

@@ -31,6 +31,7 @@ public class MenuRequestHandler {
         BigDecimal foodPrice = new BigDecimal(request.getParameter(MenuConstant.PARAM_FOOD_PRICE));
         String foodCategory = request.getParameter(MenuConstant.PARAM_FOOD_CATEGORY);
         String foodAvailability = request.getParameter(MenuConstant.PARAM_FOOD_AVAILABILITY);
+        int vendorId = Integer.parseInt(request.getParameter("vendor_id"));
 
         // Handle file upload
         Part filePart = request.getPart("food_image");
@@ -52,7 +53,7 @@ public class MenuRequestHandler {
         }
 
         // Create and return new menu item model
-        return new MenuItemModel(foodName, foodDescription, foodPrice, foodCategory, foodAvailability, fileName);
+        return new MenuItemModel(foodName, foodDescription, foodPrice, foodCategory, foodAvailability, fileName, vendorId);
     }
 
     /**

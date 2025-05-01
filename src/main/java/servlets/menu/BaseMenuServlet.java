@@ -11,6 +11,7 @@ import model.UserModel;
 import servlets.user.UserConstant;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Abstract base servlet class providing common functionality for menu-related operations.
@@ -73,6 +74,17 @@ public abstract class BaseMenuServlet extends HttpServlet {
     protected UserModel getCurrentUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         return (session != null) ? (UserModel) session.getAttribute(UserConstant.ATTR_USER) : null;
+    }
+
+    /**
+     * Gets the current user's ID.
+     *
+     * @param request The HttpServletRequest containing the session
+     * @return user ID if logged in, -1 otherwise
+     */
+    protected int getCurrentUserId(HttpServletRequest request) {
+        UserModel user = getCurrentUser(request);
+        return user != null ? user.getUserId() : -1;
     }
 
     /**
@@ -150,11 +162,66 @@ public abstract class BaseMenuServlet extends HttpServlet {
      * @return true if user is authorized to edit the item, false otherwise
      */
     protected boolean canEditItem(HttpServletRequest request, MenuItemModel item) {
+        if (item == null) return false;
+
+        UserModel user = getCurrentUser(request);
+        if (user == null) return false;
+
+        // Admins can edit all items
+        if (UserConstant.ROLE_ADMIN.equals(user.getUserRole())) {
+            return true;
+        }
+
+        // Vendors can only edit their own items
+        if (UserConstant.ROLE_VENDOR.equals(user.getUserRole())) {
+            return user.getUserId() == item.getVendorId();
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the current user owns or can manage a specific menu item.
+     *
+     * @param request The HttpServletRequest containing the user's session
+     * @param itemId The ID of the menu item to check
+     * @return true if user can manage the item, false otherwise
+     * @throws SQLException if there's a database error
+     */
+    protected boolean canManageItem(HttpServletRequest request, int itemId) throws SQLException {
         if (isAdmin(request)) {
             return true;
         }
-        // Add logic here if vendors have ownership of certain items
-        // For now, vendors can edit all items like admins
-        return isVendor(request);
+
+        if (isVendor(request)) {
+            MenuItemModel item = menuItemDAO.getMenuItemById(itemId);
+            return item != null && item.getVendorId() == getCurrentUserId(request);
+        }
+
+        return false;
+    }
+
+    /**
+     * Verifies if the current user can manage a menu item and throws unauthorized if not.
+     *
+     * @param request The HttpServletRequest object
+     * @param response The HttpServletResponse object
+     * @param itemId The ID of the menu item to check
+     * @return true if authorized, false and sets unauthorized response if not
+     * @throws ServletException If a servlet-specific error occurs
+     * @throws IOException If an I/O error occurs
+     */
+    protected boolean verifyItemManagement(HttpServletRequest request, HttpServletResponse response, int itemId)
+            throws ServletException, IOException {
+        try {
+            if (!canManageItem(request, itemId)) {
+                unauthorized(request, response);
+                return false;
+            }
+            return true;
+        } catch (SQLException e) {
+            handleError(request, response, e);
+            return false;
+        }
     }
 }

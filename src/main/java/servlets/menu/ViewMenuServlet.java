@@ -14,44 +14,35 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Servlet implementation for viewing the complete menu items list.
- * Handles GET requests to display all available menu items.
- * Provides different view capabilities for admin vs regular users.
- */
 @WebServlet(
         name = "ViewMenuServlet",
         value = "/menu",
-        description = "Servlet for viewing the complete menu items listing. Displays all available menu items."
+        description = "Servlet for viewing menu items."
 )
 public class ViewMenuServlet extends BaseMenuServlet {
 
-    /**
-     * Handles GET requests to display the full menu items list.
-     * Retrieves all menu items from database and forwards to list view.
-     *
-     * @param request  The HttpServletRequest object
-     * @param response The HttpServletResponse object
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException      If an I/O error occurs during processing
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Set admin status flag for view customization
+            UserModel user = getCurrentUser(request);
+            List<MenuItemModel> menuItems;
+
+            // Set role flags for view customization
             request.setAttribute("isAdmin", isAdmin(request));
             request.setAttribute("isVendor", isVendor(request));
 
-            // Retrieve all menu items from database
-            List<MenuItemModel> menuItems = menuItemDAO.getAllMenuItems();
+            if (isVendor(request)) {
+                // Vendors only see their own items
+                menuItems = menuItemDAO.getMenuItemsByVendor(user.getUserId());
+            } else {
+                // Admins and customers see all items
+                menuItems = menuItemDAO.getAllMenuItems();
+            }
 
-            // Prepare request attributes and forward to list view
             request.setAttribute(MenuConstant.ATTR_MENU_ITEMS, menuItems);
             forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
-
         } catch (SQLException e) {
-            // Handle database access errors
             handleError(request, response, e);
         }
     }
@@ -60,9 +51,7 @@ public class ViewMenuServlet extends BaseMenuServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Fetch the menu id
             int itemId = Integer.parseInt(request.getParameter(MenuConstant.PARAM_FOOD_ID));
-            // get menu on the basis of id
             MenuItemModel menuItem = menuItemDAO.getMenuItemById(itemId);
 
             if (menuItem == null) {
@@ -70,18 +59,15 @@ public class ViewMenuServlet extends BaseMenuServlet {
                 return;
             }
 
-            // Get the current user from session
             HttpSession session = request.getSession(false);
             UserModel user = (session != null) ? (UserModel) session.getAttribute(UserConstant.ATTR_USER) : null;
 
             if (user != null) {
-                // Add item to order (using a placeholder user ID - you should replace with actual user ID)
-                OrderDAO.createOrder(user.getUserId(), menuItem); // Replace 1 with actual user ID from UserModel
+                OrderDAO.createOrder(user.getUserId(), menuItem);
             } else {
-                System.out.println("\nCannot add to order - no user logged in");
+                request.setAttribute(MenuConstant.MSG_NOTIFICATION, "Please login to place orders");
+                forwardToView(request, response, MenuConstant.MENU_LIST_PAGE);
             }
-
-
         } catch (NumberFormatException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid menu item ID");
         } catch (SQLException e) {

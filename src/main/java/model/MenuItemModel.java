@@ -15,6 +15,7 @@ public class MenuItemModel {
     private String foodCategory;        // Category of the food (meals, snacks, sweets, drinks)
     private String foodAvailability;    // Availability status (available, out_of_order)
     private String foodImage;           // Field for image path
+    private int vendorId;
 
     /**
      * Constructor to create a new MenuItemModel with all attributes.
@@ -24,18 +25,21 @@ public class MenuItemModel {
      * @param foodPrice Price of the food item
      * @param foodCategory Category of the food
      * @param foodAvailability Availability status
+     * @param foodImage Food Image
+     * @param vendorId Vendor ID
      */
-    public MenuItemModel(String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability, String foodImage) {
+    public MenuItemModel(String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability, String foodImage, int vendorId) {
         this.foodName = foodName;
         this.foodDescription = foodDescription;
         this.foodPrice = foodPrice;
         this.foodCategory = foodCategory;
         this.foodAvailability = foodAvailability;
         this.foodImage = foodImage;
+        this.vendorId = vendorId;
     }
 
     // Constructor for existing items (with ID)
-    public MenuItemModel(int foodId, String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability, String foodImage) {
+    public MenuItemModel(int foodId, String foodName, String foodDescription, BigDecimal foodPrice, String foodCategory, String foodAvailability, String foodImage, int vendorId) {
         this.foodId = foodId;
         this.foodName = foodName;
         this.foodDescription = foodDescription;
@@ -43,6 +47,7 @@ public class MenuItemModel {
         this.foodCategory = foodCategory;
         this.foodAvailability = foodAvailability;
         this.foodImage = foodImage;
+        this.vendorId = vendorId;
     }
 
 
@@ -85,4 +90,10 @@ public class MenuItemModel {
 
     /** @param foodImage Food Image to set */
     public void setFoodImage(String foodImage) { this.foodImage = foodImage; }
+
+    /** @return Vendor Id */
+    public int getVendorId() { return vendorId; }
+
+    /** @param vendorId Vendor Id t set */
+    public void setVendorId(int vendorId) { this.vendorId = vendorId; }
 }
