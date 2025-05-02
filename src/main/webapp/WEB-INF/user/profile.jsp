@@ -6,125 +6,180 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+
     <style>
+        /* Profile Page Specific Styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
+            height: 100%;
+            overflow-y: scroll;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        .profile-container {
+            max-width: 90dvw;
+            margin: 2rem auto;
+            background: var(--background);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        h2, h3 {
-            color: #333;
+
+        .page-title {
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.75rem;
         }
-        .user-info {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 4px;
+
+        /* Profile Layout Styles */
+        .profile-layout {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
         }
-        .form-group {
-            margin-bottom: 15px;
+
+        .profile-sidebar {
+            flex: 0 0 auto;
+            width: 220px;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+
+        .profile-main {
+            flex: 1;
         }
-        input[type="text"], input[type="password"], textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+
+        /* Toggle Menu Styles */
+        .toggle-menu {
+            display: flex;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
-        .btn {
-            padding: 8px 12px;
+
+        .toggle-btn {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            background: none;
             border: none;
-            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .toggle-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            color: var(--primary);
+            background-color: rgba(49, 216, 110, 0.05);
+        }
+
+        .toggle-btn.active::after {
+            transform: scaleX(1);
+        }
+
+        .toggle-btn:hover {
+            background-color: rgba(49, 216, 110, 0.05);
+        }
+
+        .toggle-btn:first-child {
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .toggle-content {
+            display: none;
+        }
+
+        .toggle-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
             margin-right: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
+
         .btn-primary {
-            background-color: #337ab7;
-            color: white;
+            background-color: var(--secondary);
+            color: var(--background);
         }
+
         .btn-primary:hover {
-            background-color: #286090;
+            background-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .btn-danger {
-            background-color: #d9534f;
-            color: white;
+            background-color: var(--accent);
+            color: var(--background);
         }
+
         .btn-danger:hover {
-            background-color: #c9302c;
-        }
-        .notification {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-        .success {
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-        .error {
-            background-color: #f2dede;
-            color: #a94442;
-        }
-        .edit-form {
-            display: none;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
+            background-color: #c41818;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* Order history styles */
-        .order-history {
-            margin: 30px 0;
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
         }
-        .order-table {
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="file"],
+        textarea {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .order-table th, .order-table td {
-            padding: 10px;
+            padding: 0.75rem;
             border: 1px solid #ddd;
-            text-align: left;
-        }
-        .order-table th {
-            background-color: #f5f5f5;
-        }
-        .order-row:hover {
-            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
         }
 
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #ddd;
-            margin-bottom: 15px;
-        }
-
-        .profile-picture-section {
-            margin-bottom: 20px;
-            text-align: center;
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(49, 216, 110, 0.2);
         }
 
         /* Modal styles */
@@ -137,33 +192,43 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
+            background-color: var(--background);
+            margin: 10% auto;
+            padding: 2rem;
+            border: 1px solid #e0e0e0;
             width: 400px;
-            max-width: 80%;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            max-width: 90%;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transform: translateY(20px);
+            animation: modalSlideIn 0.3s forwards;
+        }
+
+        @keyframes modalSlideIn {
+            to {
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
             border-bottom: 1px solid #eee;
         }
 
         .modal-title {
-            font-size: 1.2em;
-            font-weight: bold;
+            font-size: 1.333rem;
+            font-weight: 600;
             margin: 0;
+            color: var(--text);
         }
 
         .close {
@@ -171,20 +236,25 @@
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s ease;
         }
 
         .close:hover {
-            color: black;
+            color: var(--text);
         }
 
         .modal-footer {
-            margin-top: 20px;
+            margin-top: 1.5rem;
             text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
         }
 
+        /* Image preview */
         .preview-container {
             text-align: center;
-            margin: 15px 0;
+            margin: 1.5rem 0;
         }
 
         #imagePreview {
@@ -192,257 +262,118 @@
             max-height: 200px;
             display: none;
             margin: 0 auto;
-            border-radius: 4px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Animation for content elements */
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .profile-layout {
+                flex-direction: column;
+            }
+
+            .profile-sidebar {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
 <body>
 <%@ include file="/WEB-INF/components/navbar.jsp" %>
 
-<div class="container">
-    <h2>User Profile</h2>
-
-    <%-- Notification area --%>
-    <% if (request.getAttribute("NOTIFICATION") != null) { %>
-    <div class="notification ${requestScope.NOTIFICATION.contains('success') ? 'success' : 'error'}">
-        <%= request.getAttribute("NOTIFICATION") %>
-    </div>
-    <% } %>
-    <% if (request.getParameter("notification") != null) { %>
-    <div class="notification success">
-        <%= request.getParameter("notification") %>
-    </div>
-    <% } %>
+<div class="profile-container">
+    <%@ include file="/WEB-INF/components/notification.jsp" %>
 
     <%-- Check if user is logged in --%>
     <% if(session.getAttribute("user") == null) { %>
-    <p>You are not logged in. <a href="${pageContext.request.contextPath}/user/login">Please login</a></p>
+    <div class="not-logged-in fade-in">
+        <p>You are not logged in. <a href="${pageContext.request.contextPath}/user/login" class="btn btn-primary">Please login</a></p>
+    </div>
     <% } else {
         model.UserModel user = (model.UserModel) session.getAttribute("user");
     %>
 
-<%--    <!-- Profile Picture Section -->--%>
-<%--    <div class="profile-picture-section">--%>
-<%--        <img src="${pageContext.request.contextPath}/user/profile-picture"--%>
-<%--             alt="Profile Picture" class="profile-picture">--%>
+    <h2 class="page-title">Hello <%= user.getUserName() %>!</h2>
 
-<%--        <form action="${pageContext.request.contextPath}/user/profile"--%>
-<%--              method="post" enctype="multipart/form-data">--%>
-<%--            <input type="hidden" name="action" value="update">--%>
-<%--            <input type="file" name="profilePicture" accept="image/*">--%>
-<%--            <button type="submit" class="btn btn-primary">Update Profile Picture</button>--%>
-<%--        </form>--%>
-<%--    </div>--%>
-    <!-- Profile Picture Section -->
-    <div class="profile-picture-section">
-        <img src="${pageContext.request.contextPath}/user/profile-picture"
-             alt="Profile Picture" class="profile-picture">
-
-        <button id="change-picture-btn" class="btn btn-primary">Change Profile Picture</button>
+    <!-- Toggle Menu -->
+    <div class="toggle-menu fade-in">
+        <button class="toggle-btn active" data-target="profile-content">My Profile</button>
+        <button class="toggle-btn" data-target="orders-content">Order History</button>
     </div>
 
-    <!-- The Modal -->
-    <div id="pictureModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Update Profile Picture</h3>
-                <span class="close">&times;</span>
+    <!-- Profile Content Section -->
+    <div id="profile-content" class="toggle-content active">
+        <div class="profile-layout">
+            <div class="profile-sidebar">
+                <%@ include file="/WEB-INF/user/components/profile-picture.jsp" %>
             </div>
-
-            <form id="pictureForm" action="${pageContext.request.contextPath}/user/profile"
-                  method="post" enctype="multipart/form-data">
-                <input type="hidden" name="action" value="update">
-
-                <div class="form-group">
-                    <label for="profilePicture">Select an image:</label>
-                    <input type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
-                </div>
-
-                <div class="preview-container">
-                    <img id="imagePreview" src="#" alt="Preview">
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
+            <div class="profile-main">
+                <%@ include file="/WEB-INF/user/components/profile-info.jsp" %>
+            </div>
         </div>
     </div>
 
-
-    <div class="user-info">
-        <p><strong>Name:</strong> <span id="display-name"><%= user.getUserName() %></span></p>
-        <p><strong>Email:</strong> <%= user.getUserMail() %></p>
-        <p><strong>Phone:</strong> <span id="display-phone"><%= user.getUserPhone() %></span></p>
-        <p><strong>Address:</strong> <span id="display-address"><%= user.getUserAddress() %></span></p>
+    <!-- Orders Content Section -->
+    <div id="orders-content" class="toggle-content">
+        <%@ include file="/WEB-INF/user/components/order-history.jsp" %>
     </div>
 
-    <button id="edit-btn" class="btn btn-primary">Edit Profile</button>
-    <a href="${pageContext.request.contextPath}/user/logout" class="btn btn-danger">Logout</a>
-
-    <div id="edit-form" class="edit-form">
-        <form action="${pageContext.request.contextPath}/user/profile" method="post">
-            <input type="hidden" name="action" value="update">
-
-            <div class="form-group">
-                <label for="user_name">Name:</label>
-                <input type="text" id="user_name" name="user_name" value="<%= user.getUserName() %>" required>
-            </div>
-
-            <div class="form-group">
-                <label for="user_phone">Phone:</label>
-                <input type="text" id="user_phone" name="user_phone" value="<%= user.getUserPhone() %>">
-            </div>
-
-            <div class="form-group">
-                <label for="user_address">Address:</label>
-                <textarea id="user_address" name="user_address"><%= user.getUserAddress() %></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="user_passwd">New Password (leave blank to keep current):</label>
-                <input type="password" id="user_passwd" name="user_passwd">
-            </div>
-
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <button type="button" id="cancel-btn" class="btn btn-danger">Cancel</button>
-        </form>
-
-        <hr>
-
-        <form action="${pageContext.request.contextPath}/user/profile" method="post"
-              onsubmit="return confirm('Are you sure you want to delete your account? This cannot be undone.');">
-            <input type="hidden" name="action" value="delete">
-            <button type="submit" class="btn btn-danger">Delete Account</button>
-        </form>
-    </div>
-
-    <!-- Order History Section -->
-    <div class="order-history">
-        <h3>Order History</h3>
-        <c:choose>
-            <c:when test="${empty orderHistory}">
-                <p>You don't have any completed orders yet.</p>
-            </c:when>
-            <c:otherwise>
-                <table class="order-table">
-                    <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <c:forEach var="order" items="${orderHistory}">
-                        <tr class="order-row">
-                            <td>${order.orderId}</td>
-                            <td><fmt:formatDate value="${order.orderDate}" pattern="MMM dd, yyyy HH:mm" /></td>
-                            <td>$<fmt:formatNumber value="${order.total}" pattern="#,##0.00" /></td>
-                            <td>${order.status}</td>
-                            <td>
-                                <a href="${pageContext.request.contextPath}/order/details?orderId=${order.orderId}"
-                                   class="btn btn-primary">View Details</a>
-                                <form action="${pageContext.request.contextPath}/user/profile" method="post"
-                                      style="display:inline;"
-                                      onsubmit="return confirm('Are you sure you want to delete this order? This cannot be undone.');">
-                                    <input type="hidden" name="action" value="deleteOrder">
-                                    <input type="hidden" name="orderId" value="${order.orderId}">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    </c:forEach>
-                    </tbody>
-
-                </table>
-            </c:otherwise>
-        </c:choose>
-    </div>
-
-    <script>
-        document.getElementById('edit-btn').addEventListener('click', function() {
-            document.getElementById('edit-form').style.display = 'block';
-            this.style.display = 'none';
-        });
-
-        document.getElementById('cancel-btn').addEventListener('click', function() {
-            document.getElementById('edit-form').style.display = 'none';
-            document.getElementById('edit-btn').style.display = 'inline-block';
-        });
-    </script>
-
-    <script>
-        // Modal functionality
-        const modal = document.getElementById("pictureModal");
-        const btn = document.getElementById("change-picture-btn");
-        const span = document.getElementsByClassName("close")[0];
-        const cancelBtn = document.getElementById("cancelBtn");
-
-        // Open modal when button is clicked
-        btn.onclick = function() {
-            modal.style.display = "block";
-        }
-
-        // Close modal when X is clicked
-        span.onclick = function() {
-            modal.style.display = "none";
-            resetForm();
-        }
-
-        // Close modal when cancel button is clicked
-        cancelBtn.onclick = function() {
-            modal.style.display = "none";
-            resetForm();
-        }
-
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-                resetForm();
-            }
-        }
-
-        // Image preview functionality
-        document.getElementById('profilePicture').addEventListener('change', function(e) {
-            const preview = document.getElementById('imagePreview');
-            const file = e.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-            }
-
-            if (file) {
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Reset form when modal is closed
-        function resetForm() {
-            document.getElementById('pictureForm').reset();
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imagePreview').src = '#';
-        }
-
-        // Existing edit form scripts
-        document.getElementById('edit-btn').addEventListener('click', function() {
-            document.getElementById('edit-form').style.display = 'block';
-            this.style.display = 'none';
-        });
-
-        document.getElementById('cancel-btn').addEventListener('click', function() {
-            document.getElementById('edit-form').style.display = 'none';
-            document.getElementById('edit-btn').style.display = 'inline-block';
-        });
-    </script>
     <% } %>
 </div>
+
+<script>
+    // Toggle Menu Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const toggleContents = document.querySelectorAll('.toggle-content');
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                toggleBtns.forEach(b => b.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Hide all content sections
+                toggleContents.forEach(content => content.classList.remove('active'));
+
+                // Show the selected content section
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Animation for elements
+        const elements = document.querySelectorAll('.fade-in');
+        elements.forEach((element, index) => {
+            setTimeout(() => {
+                element.style.animation = 'fadeIn 0.5s forwards';
+            }, index * 100);
+        });
+    });
+</script>
 </body>
 </html>
