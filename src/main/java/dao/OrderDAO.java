@@ -215,4 +215,19 @@ public class OrderDAO {
             }
         }
     }
+
+    public int getOrderCount() throws SQLException {
+        int count = 0;
+        String query = "SELECT COUNT(*) AS count FROM orders";
+
+        try (PreparedStatement pst = prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) {
+                count = rs.getInt("count");
+            }
+        }
+
+        return count;
+    }
 }

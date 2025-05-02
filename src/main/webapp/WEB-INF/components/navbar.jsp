@@ -1,3 +1,5 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <style>
     header {
         width: 100%;
@@ -9,7 +11,8 @@
         left: 0;
         margin: 0;
         z-index: 1000;
-        background: transparent;
+        background: transparent !important;
+        mix-blend-mode: difference;
     }
 
     .navbar{
@@ -18,12 +21,15 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: transparent !important;
+        mix-blend-mode: difference;
     }
 
     .nav-logo {
         display: flex;
         justify-content: center;
         align-items: center;
+        mix-blend-mode: difference;
     }
 
     .nav-logo .nav-title {
@@ -53,6 +59,7 @@
         position: relative;
         padding: 0.5rem 0;
         transition: opacity 0.3s ease;
+        mix-blend-mode: difference;
     }
 
     .nav-link::after {
@@ -73,17 +80,13 @@
     .nav-links:hover .nav-link:not(:hover) {
         opacity: 0.5;
     }
-
-
 </style>
 
 <header>
     <nav class="navbar">
-
         <div class="nav-logo">
             <a href="${pageContext.request.contextPath}/" class="nav-title">Food App</a>
         </div>
-
 
         <div class="nav-links">
             <a href="${pageContext.request.contextPath}/" class="nav-link">Home</a>
@@ -91,11 +94,19 @@
 
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
+                    <!-- Show user profile link for all logged in users -->
                     <a href="${pageContext.request.contextPath}/user/profile" class="nav-link">
-                        <span>${sessionScope.user.userName}</span>
+                            ${sessionScope.user.userName}
                     </a>
+                    <!-- Additional admin dashboard link for admin users -->
+                    <c:if test="${sessionScope.user.userRole eq 'admin'}">
+                        <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-link">
+                            Admin Dashboard
+                        </a>
+                    </c:if>
                 </c:when>
                 <c:otherwise>
+                    <!-- Only show login button when no user is logged in -->
                     <a href="${pageContext.request.contextPath}/user/login" class="nav-link">
                         Login
                     </a>

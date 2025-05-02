@@ -2,26 +2,97 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <!-- Google Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
 
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
+    <title>Cibo gustoso - Italian Restaurant</title>
 
-        <title>Home Page</title>
-    </head>
-    <body style="margin: 0; padding: 0;">
-        <%@ include file="WEB-INF/components/navbar.jsp" %>
-        <h1><%= "Welcome to Our Website!" %></h1>
-    </body>
+    <style>
+        body {
+            overflow-y: scroll;
+        }
+
+        .restaurant-container {
+            max-width: 100%;
+            overflow-x: hidden;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+
+        /* Responsive styles */
+        @media (max-width: 1024px) {
+            .section-content {
+                flex-direction: column;
+            }
+
+            .description {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            h2 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<%@ include file="/WEB-INF/components/navbar.jsp" %>
+
+<jsp:include page="templates/hero.jsp" />
+
+<div class="restaurant-container">
+
+    <jsp:include page="templates/who-are-we.jsp" />
+
+    <jsp:include page="templates/menu-section.jsp" />
+
+    <jsp:include page="templates/drinks-section.jsp" />
+
+    <jsp:include page="templates/footer.jsp" />
+</div>
+
+<!-- Optional JavaScript for interactivity -->
+<script>
+    // Add event listeners for menu category buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryButtons = document.querySelectorAll('.category-button');
+
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+            });
+        });
+
+        // Similar functionality for drink categories
+        const drinkCategories = document.querySelectorAll('.drink-category');
+
+        drinkCategories.forEach(category => {
+            category.addEventListener('click', function() {
+                drinkCategories.forEach(cat => cat.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+</body>
 </html>

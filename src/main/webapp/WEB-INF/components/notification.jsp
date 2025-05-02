@@ -1,5 +1,5 @@
-<%-- /WEB-INF/components/notifications.jsp --%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%-- /WEB-INF/components/notification.jsp --%>
+<%@ page language="java" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <style>
@@ -114,12 +114,11 @@
   }
 </style>
 
-<c:if test="${not empty NOTIFICATION}">
-
+<c:if test="${not empty NOTIFICATION or not empty MSG_NOTIFICATION}">
   <div class="notification-container">
     <div class="notification-popup ${NOTIFICATION_TYPE eq 'SUCCESS' ? 'success' : 'error'}">
       <div class="notification-content">
-        <span class="notification-message">${NOTIFICATION}</span>
+        <span class="notification-message">${not empty MSG_NOTIFICATION ? MSG_NOTIFICATION : NOTIFICATION}</span>
         <button class="notification-close">&times;</button>
       </div>
       <div class="notification-progress"></div>

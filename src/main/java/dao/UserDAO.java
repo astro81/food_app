@@ -3,6 +3,8 @@ package dao;
 import dao.helpers.UserDAOHelpers;
 import model.OrderModel;
 import model.UserModel;
+import servlets.user.UserConstant;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +22,7 @@ public class UserDAO {
     private static final String REGISTER_QUERY = "INSERT INTO users(user_name, user_mail, user_passwd, user_phone, user_address, user_role) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String LOGIN_QUERY = "SELECT * FROM users WHERE user_mail = ?";
     private static final String UPDATE_QUERY = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ? WHERE user_mail = ?";
-    private static final String DELETE_QUERY = "DELETE FROM users WHERE user_mail = ?";
+    private static final String DELETE_QUERY = "DELETE FROM users WHERE user_id = ?";
     private static final String UPDATE_WITH_PICTURE_QUERY = "UPDATE users SET user_name = ?, user_passwd = ?, user_phone = ?, user_address = ?, profile_picture = ? WHERE user_mail = ?";
     private static final String GET_ALL_USERS_QUERY = "SELECT * FROM users";
     private static final String UPDATE_ROLE_QUERY = "UPDATE users SET user_role = ? WHERE user_id = ?";
@@ -98,13 +100,13 @@ public class UserDAO {
     /**
      * Deletes a user from the database.
      *
-     * @param userMail The email of the user to delete
+     * @param userId The email of the user to delete
      * @return boolean indicating success (true) or failure (false) of the deletion
      * @throws SQLException if there's a database access error
      */
-    public boolean deleteUser(String userMail) throws SQLException {
+    public boolean deleteUser(int userId) throws SQLException {
         try (PreparedStatement pst = prepareStatement(DELETE_QUERY)) {
-            pst.setString(1, userMail);
+            pst.setInt(1, userId);
             return pst.executeUpdate() > 0;
         }
     }
@@ -144,5 +146,38 @@ public class UserDAO {
             }
         }
         return orders;
+    }
+
+    public int getUserCount() throws SQLException {
+        int count = 0;
+        String query = "SELECT COUNT(*) AS count FROM users";
+
+        try (PreparedStatement pst = prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) {
+                count = rs.getInt("count");
+            }
+        }
+
+        return count;
+    }
+
+    public int getVendorCount() throws SQLException {
+        int count = 0;
+        String query = "SELECT COUNT(*) AS count FROM users WHERE user_role = ?";
+
+        try (PreparedStatement pst = prepareStatement(query)) {
+
+            pst.setString(1, UserConstant.ROLE_VENDOR);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt("count");
+                }
+            }
+        }
+
+        return count;
     }
 }

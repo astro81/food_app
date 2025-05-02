@@ -46,7 +46,7 @@ public class DeleteProfileHandler implements ProfileHandler {
             throws ServletException, IOException, SQLException {
 
         // Attempt account deletion
-        boolean deleteSuccess = userDao.deleteUser(currentUser.getUserMail());
+        boolean deleteSuccess = userDao.deleteUser(currentUser.getUserId());
 
         if (deleteSuccess) {
             // Successful deletion - terminate session

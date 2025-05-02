@@ -127,4 +127,19 @@ public class MenuItemDAO {
         return getMenuItemModels(String.valueOf(vendorId), SELECT_BY_VENDOR_QUERY);
     }
 
+    public int getMenuItemCount() throws SQLException {
+        int count = 0;
+        String query = "SELECT COUNT(*) AS count FROM MenuItem";
+
+        try (PreparedStatement pst = prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) {
+                count = rs.getInt("count");
+            }
+        }
+
+        return count;
+    }
+
 }

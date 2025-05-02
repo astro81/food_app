@@ -40,20 +40,60 @@
     }
 
     .change-picture-btn {
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         background-color: var(--secondary);
         color: white;
         border: none;
         cursor: pointer;
-        font-weight: 500;
+        font-size: 1.2rem;
         transition: all 0.2s ease;
+        position: relative;
     }
 
     .change-picture-btn:hover {
         background-color: var(--primary);
-        transform: translateY(-2px);
+        transform: translateY(-2px) scale(1.1);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Tooltip styles */
+    .change-picture-btn::after {
+        content: "Change Profile Picture";
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #333;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+        pointer-events: none;
+    }
+
+    .change-picture-btn:hover::after {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 10px);
+    }
+
+    /* Icon styles */
+    .camera-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
     }
 </style>
 
@@ -61,7 +101,9 @@
     <img src="${pageContext.request.contextPath}/user/profile-picture"
          alt="Profile Picture" class="profile-picture">
 
-    <button id="change-picture-btn" class="change-picture-btn">Change Profile Picture</button>
+    <button id="change-picture-btn" class="change-picture-btn" aria-label="Change Profile Picture">
+        <span class="camera-icon"></span>
+    </button>
 </div>
 
 <!-- The Modal -->
