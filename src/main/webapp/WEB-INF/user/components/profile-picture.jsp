@@ -114,7 +114,7 @@
             <span class="close">&times;</span>
         </div>
 
-        <form id="pictureForm" action="${pageContext.request.contextPath}/user/profile"
+        <form id="pictureForm" action="${pageContext.request.contextPath}/user/update-profile-picture"
               method="post" enctype="multipart/form-data">
             <input type="hidden" name="action" value="update">
 

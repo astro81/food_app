@@ -53,24 +53,15 @@ public class UpdateProfileHandler implements ProfileHandler {
         String userAddress = request.getParameter(UserConstant.PARAM_ADDRESS);
         String userPasswd = request.getParameter(UserConstant.PARAM_PASSWORD);
 
-        // Handle file upload
-        Part filePart = request.getPart("profilePicture");
-        byte[] profilePicture = null;
-
-        if (filePart != null && filePart.getSize() > 0) {
-            try (InputStream fileContent = filePart.getInputStream()) {
-                profilePicture = fileContent.readAllBytes();
-            }
-        }
-
         // Create updated user model with validated data
-        UserModel updatedUser = createUpdatedUserModel(currentUser, userName, userPhone, userAddress, userPasswd, profilePicture);
+        UserModel updatedUser = createUpdatedUserModel(currentUser, userName, userPhone, userAddress, userPasswd);
 
         // Attempt database update
-        boolean updateSuccess = userDao.updateUser(currentUser.getUserMail(), updatedUser);
+        boolean updateSuccess = userDao.updateUserInfo(currentUser.getUserMail(), updatedUser);
 
         if (updateSuccess) {
             // Update session with new user data
+            updatedUser.setProfilePicture(currentUser.getProfilePicture()); // Keep the existing profile picture
             session.setAttribute(UserConstant.ATTR_USER, updatedUser);
             request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_UPDATE_SUCCESS);
         } else {
@@ -91,27 +82,22 @@ public class UpdateProfileHandler implements ProfileHandler {
      * @param userPasswd new password (null or empty retains current)
      * @return updated UserModel instance
      */
-    private UserModel createUpdatedUserModel(UserModel currentUser, String userName, String userPhone, String userAddress, String userPasswd, byte[] profilePicture) {
+    private UserModel createUpdatedUserModel(UserModel currentUser, String userName, String userPhone, String userAddress, String userPasswd) {
         // Handle password hashing if password is being changed else password remains unchanged
         String hashedPasswd = isPasswordChanged(userPasswd)
                 ? BCrypt.hashpw(userPasswd, BCrypt.gensalt())
                 : currentUser.getUserPasswd();
 
         UserModel updatedUser = new UserModel(
+                currentUser.getUserId(),
                 userName != null ? userName : currentUser.getUserName(),
                 currentUser.getUserMail(),
                 hashedPasswd,
                 userPhone != null ? userPhone : currentUser.getUserPhone(),
                 userAddress != null ? userAddress : currentUser.getUserAddress(),
-                currentUser.getUserRole()
+                currentUser.getUserRole(),
+                currentUser.getProfilePicture()
         );
-
-        // Set profile picture if provided, otherwise keep existing one
-        if (profilePicture != null) {
-            updatedUser.setProfilePicture(profilePicture);
-        } else {
-            updatedUser.setProfilePicture(currentUser.getProfilePicture());
-        }
 
         return updatedUser;
     }
