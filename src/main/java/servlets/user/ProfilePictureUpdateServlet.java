@@ -44,7 +44,8 @@ public class ProfilePictureUpdateServlet extends HttpServlet {
         try {
             profilePictureHandler.handle(request, response, currentUser, session);
         } catch (SQLException e) {
-            request.setAttribute("NOTIFICATION", UserConstant.MSG_DB_ERROR + ": " + e.getMessage());
+            request.setAttribute(UserConstant.MSG_NOTIFICATION, UserConstant.MSG_DB_ERROR + e.getMessage());
+            request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
             request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
         }
     }

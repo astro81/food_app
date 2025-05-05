@@ -304,7 +304,6 @@
 <%@ include file="/WEB-INF/components/navbar.jsp" %>
 
 <div class="profile-container">
-    <%@ include file="/WEB-INF/components/notification.jsp" %>
 
     <%-- Check if user is logged in --%>
     <% if(session.getAttribute("user") == null) { %>

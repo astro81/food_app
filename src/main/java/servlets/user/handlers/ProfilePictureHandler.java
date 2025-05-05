@@ -53,6 +53,7 @@ public class ProfilePictureHandler {
             }
         } else {
             request.setAttribute(UserConstant.MSG_NOTIFICATION, "No profile picture was selected.");
+            request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
             request.getRequestDispatcher(UserConstant.PROFILE_PAGE).forward(request, response);
             return;
         }
@@ -67,8 +68,10 @@ public class ProfilePictureHandler {
             // Update session with new user data
             session.setAttribute(UserConstant.ATTR_USER, updatedUser);
             request.setAttribute(UserConstant.MSG_NOTIFICATION, "Profile picture updated successfully.");
+            request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_SUCCESS);
         } else {
             request.setAttribute(UserConstant.MSG_NOTIFICATION, "Failed to update profile picture.");
+            request.setAttribute(UserConstant.NOTIFICATION_TYPE, UserConstant.NOTIFICATION_ERROR);
         }
 
         // Return to profile view
@@ -83,7 +86,7 @@ public class ProfilePictureHandler {
      * @return updated UserModel instance
      */
     private UserModel createUserWithUpdatedPicture(UserModel currentUser, byte[] profilePicture) {
-        UserModel updatedUser = new UserModel(
+        return new UserModel(
                 currentUser.getUserId(),
                 currentUser.getUserName(),
                 currentUser.getUserMail(),
@@ -93,6 +96,5 @@ public class ProfilePictureHandler {
                 currentUser.getUserRole(),
                 profilePicture
         );
-        return updatedUser;
     }
 }
