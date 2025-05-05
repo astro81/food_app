@@ -1,91 +1,84 @@
 package servlets.user;
 
 import java.io.*;
+import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import java.sql.SQLException;
 
-/**
- * Servlet implementation for secure user session termination.
- * <p>
- * This servlet handles the logout process by:
- * <ul>
- *   <li>Invalidating the current HTTP session and all associated data</li>
- *   <li>Clearing authentication tokens</li>
- *   <li>Preventing session fixation attacks</li>
- *   <li>Redirecting to login page with clean session state</li>
- * </ul>
- *
- * <p><strong>Security Features:</strong>
- * <ul>
- *   <li>No new session creation during logout process</li>
- *   <li>Complete session data destruction</li>
- *   <li>Context-aware redirect path construction</li>
- *   <li>Protection against session fixation attacks</li>
- * </ul>
- */
 @WebServlet(
         name = "LogoutServlet",
         value = "/user/logout",
         description = "Handles secure session termination and user logout"
 )
 public class LogoutServlet extends HttpServlet {
-    @Serial
     private static final long serialVersionUID = 1L;
+    private UserDAO userDao;
 
-    /**
-     * Handles HTTP GET requests for user logout.
-     * <p>
-     * Implements secure logout procedure:
-     * <ol>
-     *   <li>Retrieves existing session without creating new one (false parameter)</li>
-     *   <li>Invalidates session if one exists (destroys all session data)</li>
-     *   <li>Constructs context-aware redirect path</li>
-     *   <li>Performs client-side redirect to login page</li>
-     * </ol>
-     *
-     * <p><strong>Security Note:</strong>
-     * The session.invalidate() call is critical for preventing session fixation
-     * attacks and ensuring complete cleanup of authentication artifacts.
-     *
-     * @param request  the HttpServletRequest object
-     * @param response the HttpServletResponse object
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if redirect operation fails
-     */
+    @Override
+    public void init() {
+        this.userDao = new UserDAO();
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        // Construct redirect path using context to ensure correct application root
         String loginPage = request.getContextPath() + UserConstant.LOGIN_PATH;
-
-        // Retrieve existing session without creating new one
         HttpSession session = request.getSession(false);
 
-        // Invalidate session if exists
         if (session != null) {
-            session.invalidate();  // Security-critical operation
+            // Clear remember me token from database
+            clearRememberTokenFromDatabase(request);
+
+            // Clear cookies
+            clearRememberCookies(response, request.getContextPath());
+
+            // Invalidate session
+            session.invalidate();
         }
 
-        // Redirect to login page (client-side redirect)
         response.sendRedirect(loginPage);
     }
 
-    /**
-     * Ensures consistent logout behavior for HTTP POST requests.
-     * <p>
-     * Simply delegates to doGet() to maintain single code path for logout logic.
-     *
-     * @param request  the HttpServletRequest object
-     * @param response the HttpServletResponse object
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if redirect operation fails
-     */
+    private void clearRememberTokenFromDatabase(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        String rememberToken = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("rememberToken".equals(cookie.getName())) {
+                    rememberToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (rememberToken != null) {
+            try {
+                userDao.deleteRememberToken(rememberToken);
+            } catch (SQLException e) {
+                // Log error but continue with logout
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void clearRememberCookies(HttpServletResponse response, String contextPath) {
+        Cookie emailCookie = new Cookie("rememberedEmail", "");
+        emailCookie.setMaxAge(0);
+        emailCookie.setPath(contextPath);
+        response.addCookie(emailCookie);
+
+        Cookie tokenCookie = new Cookie("rememberToken", "");
+        tokenCookie.setMaxAge(0);
+        tokenCookie.setPath(contextPath);
+        response.addCookie(tokenCookie);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doGet(request, response);
     }
-
 }

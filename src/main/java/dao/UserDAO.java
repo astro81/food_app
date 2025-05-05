@@ -33,6 +33,9 @@ public class UserDAO {
                     "ORDER BY o.order_date DESC";
     private static final String GET_USER_COUNT_QUERY = "SELECT COUNT(*) AS count FROM users";
     private static final String GET_VENDOR_COUNT_QUERY = "SELECT COUNT(*) AS count FROM users WHERE user_role = ?";
+    private static final String STORE_REMEMBER_TOKEN_QUERY = "INSERT INTO remember_tokens(user_id, token, expiry_date) VALUES (?, ?, ?)";
+    private static final String DELETE_REMEMBER_TOKEN_QUERY = "DELETE FROM remember_tokens WHERE token = ?";
+    private static final String GET_USER_BY_TOKEN_QUERY = "SELECT u.* FROM users u JOIN remember_tokens rt ON u.user_id = rt.user_id WHERE rt.token = ? AND rt.expiry_date > NOW()";
 
     /**
      * Registers a new user in the database.
@@ -171,5 +174,30 @@ public class UserDAO {
         }
 
         return count;
+    }
+
+    public void storeRememberToken(int userId, String token, java.sql.Timestamp expiry) throws SQLException {
+        try (PreparedStatement pst = prepareStatement(STORE_REMEMBER_TOKEN_QUERY)) {
+            pst.setInt(1, userId);
+            pst.setString(2, token);
+            pst.setTimestamp(3, expiry);
+            pst.executeUpdate();
+        }
+    }
+
+    public void deleteRememberToken(String token) throws SQLException {
+        try (PreparedStatement pst = prepareStatement(DELETE_REMEMBER_TOKEN_QUERY)) {
+            pst.setString(1, token);
+            pst.executeUpdate();
+        }
+    }
+
+    public UserModel getUserByRememberToken(String token) throws SQLException {
+        try (PreparedStatement pst = prepareStatement(GET_USER_BY_TOKEN_QUERY)) {
+            pst.setString(1, token);
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next() ? mapResultSetToUser(rs) : null;
+            }
+        }
     }
 }
