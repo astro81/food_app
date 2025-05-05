@@ -284,32 +284,273 @@
             background-repeat: no-repeat;
             display: inline-block;
         }
+
+        .menu-hero {
+            height: 70vh;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)),
+            url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #0d9e6e;
+            transform: translateY(-2px);
+        }
+
+        .filter-section {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .filter-section h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.7rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            align-self: flex-end;
+        }
+
+        .filter-btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.apply {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .filter-btn.reset {
+            background-color: #f3f4f6;
+            color: #333;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
     </style>
 </head>
 <body>
 
+<%@ include file="/WEB-INF/components/navbar.jsp" %>
+
 <div class="wrapper">
 
-<section class="menu-hero">
+<%--<section class="menu-hero">--%>
 
-    <div class="filter-section">
-        <h2>Filters</h2>
-        <form action="${pageContext.request.contextPath}/menu/filter" method="get">
-            <!-- Filter controls remain the same -->
-        </form>
-    </div>
+<%--    <div class="filter-section">--%>
+<%--        <h2>Filters</h2>--%>
+<%--        <form action="${pageContext.request.contextPath}/menu/filter" method="get">--%>
+<%--            <!-- Filter controls remain the same -->--%>
+<%--        </form>--%>
+<%--    </div>--%>
 
-    <c:if test="${isAdmin or isVendor}">
-        <p><a href="${pageContext.request.contextPath}/menu/add" class="btn">Add New Menu Item</a></p>
-    </c:if>
+<%--    <c:if test="${isAdmin or isVendor}">--%>
+<%--        <p><a href="${pageContext.request.contextPath}/menu/add" class="btn">Add New Menu Item</a></p>--%>
+<%--    </c:if>--%>
 
-    <c:if test="${not (isAdmin or isVendor)}">
-        <form action="${pageContext.request.contextPath}/make-order" method="get" style="display:inline;">
-            <button type="submit" class="btn" style="background-color: #2196F3;">Make Order</button>
-        </form>
-    </c:if>
+<%--    <c:if test="${not (isAdmin or isVendor)}">--%>
+<%--        <form action="${pageContext.request.contextPath}/make-order" method="get" style="display:inline;">--%>
+<%--            <button type="submit" class="btn" style="background-color: #2196F3;">Make Order</button>--%>
+<%--        </form>--%>
+<%--    </c:if>--%>
 
-</section>
+<%--</section>--%>
+
+    <section class="menu-hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Discover Our Delicious Menu</h1>
+            <p class="hero-subtitle">Explore a wide variety of culinary delights prepared with the freshest ingredients</p>
+
+            <div class="search-container">
+                <form action="${pageContext.request.contextPath}/menu/search" method="get">
+                    <input type="text" class="search-input" name="query" placeholder="Search for dishes, cuisines, or ingredients...">
+                    <button type="submit" class="search-button">Search</button>
+                </form>
+            </div>
+
+            <div class="filter-section">
+                <h2>Filter Menu Items</h2>
+                <form action="${pageContext.request.contextPath}/menu/filter" method="get" class="filter-form">
+                    <div class="filter-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" class="form-control">
+                            <option value="">All Categories</option>
+                            <option value="Appetizer">Appetizers</option>
+                            <option value="Main Course">Main Courses</option>
+                            <option value="Dessert">Desserts</option>
+                            <option value="Beverage">Beverages</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="price-range">Price Range</label>
+                        <select id="price-range" name="price-range" class="form-control">
+                            <option value="">Any Price</option>
+                            <option value="0-10">$0 - $10</option>
+                            <option value="10-20">$10 - $20</option>
+                            <option value="20-50">$20 - $50</option>
+                            <option value="50+">$50+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="availability">Availability</label>
+                        <select id="availability" name="availability" class="form-control">
+                            <option value="">All Items</option>
+                            <option value="available">Available Now</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="sort">Sort By</label>
+                        <select id="sort" name="sort" class="form-control">
+                            <option value="name-asc">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="price-asc">Price (Low to High)</option>
+                            <option value="price-desc">Price (High to Low)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="reset" class="filter-btn reset">Reset</button>
+                        <button type="submit" class="filter-btn apply">Apply Filters</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-buttons">
+                <c:if test="${isAdmin or isVendor}">
+                    <a href="${pageContext.request.contextPath}/menu/add" class="btn" style="background-color: #10b981; color: white; padding: 0.8rem 1.5rem; border-radius: 5px; font-weight: 600;">
+                        Add New Menu Item
+                    </a>
+                </c:if>
+
+                <c:if test="${not (isAdmin or isVendor)}">
+                    <form action="${pageContext.request.contextPath}/make-order" method="get" style="display:inline;">
+                        <button type="submit" class="btn" style="background-color: #2196F3; color: white; padding: 0.8rem 1.5rem; border-radius: 5px; font-weight: 600;">
+                            Make Order
+                        </button>
+                    </form>
+                </c:if>
+            </div>
+        </div>
+    </section>
 
 <section class="menu-container">
 
@@ -383,6 +624,9 @@
 </section>
 
 </div>
+
+<jsp:include page="/templates/footer.jsp" />
+
 <!-- Hidden iframe for form submission without page refresh -->
 <iframe name="hiddenFrame" style="display:none;"></iframe>
 </body>
