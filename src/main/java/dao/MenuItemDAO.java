@@ -28,6 +28,7 @@ public class MenuItemDAO {
     private static final String SELECT_BY_CATEGORY_QUERY = "SELECT * FROM MenuItem WHERE food_category = ?";
     private static final String SELECT_BY_AVAILABILITY_QUERY = "SELECT * FROM MenuItem WHERE food_availability = ?";
     private static final String SELECT_BY_VENDOR_QUERY = "SELECT * FROM MenuItem WHERE vendor_id = ?";
+    private static final String SEARCH_ITEMS_QUERY = "SELECT * FROM MenuItem WHERE LOWER(food_name) LIKE ? OR LOWER(food_description) LIKE ? OR LOWER(food_category) LIKE ?";
 
     /**
      * Retrieves all menu items from the database.
@@ -140,6 +141,25 @@ public class MenuItemDAO {
         }
 
         return count;
+    }
+
+    public List<MenuItemModel> searchMenuItems(String query) throws SQLException {
+        List<MenuItemModel> menuItems = new ArrayList<>();
+
+        try (PreparedStatement pst = prepareStatement(SEARCH_ITEMS_QUERY)) {
+            String searchTerm = "%" + query.toLowerCase() + "%";
+            pst.setString(1, searchTerm);
+            pst.setString(2, searchTerm);
+            pst.setString(3, searchTerm);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    menuItems.add(mapResultSetToMenuItem(rs));
+                }
+            }
+        }
+
+        return menuItems;
     }
 
 }

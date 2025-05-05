@@ -12,8 +12,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
-<%--    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">--%>
-
     <title>Menu Items</title>
     <style>
         /* Reset and base styles */
@@ -40,15 +38,11 @@
             align-items: center;
         }
 
-        .menu-hero {
-            height: 100dvh;
-            width: 100dvw;
-            outline: 1px solid coral;
-        }
-
         .menu-container {
             margin: 0 auto;
             padding: 20px;
+            width: 100%;
+            max-width: 1200px;
         }
 
         h1 {
@@ -61,12 +55,12 @@
         /* Menu item card styles */
         .menu-items {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 24px;
         }
 
         .menu-item {
-            width: fit-content;
+            width: 100%;
             display: flex;
             flex-direction: column;
             border-radius: 8px;
@@ -82,26 +76,12 @@
             transform: translateY(-3px);
         }
 
-        /*@media (min-width: 768px) {*/
-        /*    .menu-item {*/
-        /*        flex-direction: row;*/
-        /*    }*/
-        /*}*/
-
         /* Image styles */
         .image-box {
             position: relative;
             height: 200px;
             width: 100%;
             overflow: hidden;
-        }
-
-        @media (min-width: 768px) {
-            .image-box {
-                width: 300px;
-                height: 300px;
-                flex-shrink: 0;
-            }
         }
 
         .menu-image {
@@ -140,13 +120,13 @@
         .item-price {
             font-size: 18px;
             font-weight: 600;
-            color: #10b981; /* emerald-600 equivalent */
+            color: #10b981;
         }
 
         .owner-badge {
             display: none;
-            background-color: #f3f4f6; /* gray-100 equivalent */
-            color: #4b5563; /* gray-600 equivalent */
+            background-color: #f3f4f6;
+            color: #4b5563;
             font-size: 12px;
             padding: 4px 8px;
             border-radius: 9999px;
@@ -172,7 +152,7 @@
         }
 
         .item-description {
-            color: #4b5563; /* gray-600 equivalent */
+            color: #4b5563;
             font-size: 14px;
             line-height: 1.5;
             margin-bottom: 8px;
@@ -187,8 +167,8 @@
 
         .item-category {
             display: inline-block;
-            background-color: #fef3c7; /* amber-100 equivalent */
-            color: #92400e; /* amber-800 equivalent */
+            background-color: #fef3c7;
+            color: #92400e;
             font-size: 12px;
             padding: 4px 12px;
             border-radius: 9999px;
@@ -202,13 +182,13 @@
         }
 
         .available {
-            background-color: #dcfce7; /* green-100 equivalent */
-            color: #166534; /* green-800 equivalent */
+            background-color: #dcfce7;
+            color: #166534;
         }
 
         .unavailable {
-            background-color: #fee2e2; /* red-100 equivalent */
-            color: #991b1b; /* red-800 equivalent */
+            background-color: #fee2e2;
+            color: #991b1b;
         }
 
         /* Action buttons */
@@ -218,7 +198,7 @@
             gap: 8px;
             margin-top: auto;
             padding-top: 12px;
-            border-top: 1px solid #f3f4f6; /* gray-100 equivalent */
+            border-top: 1px solid #f3f4f6;
         }
 
         .btn {
@@ -247,7 +227,7 @@
         }
 
         .btn-default {
-            background-color: #10b981; /* emerald-600 equivalent */
+            background-color: #10b981;
             color: white;
             margin-left: auto;
         }
@@ -255,11 +235,11 @@
         .btn-outline {
             background-color: transparent;
             color: #333;
-            border: 1px solid #e5e7eb; /* gray-200 equivalent */
+            border: 1px solid #e5e7eb;
         }
 
         .btn-danger {
-            background-color: #ef4444; /* red-500 equivalent */
+            background-color: #ef4444;
             color: white;
         }
 
@@ -285,6 +265,15 @@
             display: inline-block;
         }
 
+        .icon-filter {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'%3E%3C/polygon%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+
         .menu-hero {
             height: 70vh;
             width: 100%;
@@ -305,6 +294,7 @@
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
+            position: relative;
         }
 
         .hero-title {
@@ -365,12 +355,51 @@
             transform: translateY(-2px);
         }
 
-        .filter-section {
+        .filter-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .filter-toggle:hover {
+            background-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .filter-section {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
             padding: 1.5rem;
-            margin-top: 2rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 300px;
+            z-index: 10;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .filter-section.show {
+            display: block;
         }
 
         .filter-section h2 {
@@ -381,15 +410,13 @@
 
         .filter-form {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 1rem;
-            justify-content: center;
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
-            min-width: 200px;
         }
 
         .filter-group label {
@@ -404,12 +431,13 @@
             border-radius: 5px;
             border: 1px solid #ddd;
             font-size: 1rem;
+            width: 100%;
         }
 
         .filter-actions {
             display: flex;
             gap: 1rem;
-            align-self: flex-end;
+            margin-top: 1rem;
         }
 
         .filter-btn {
@@ -419,6 +447,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
         }
 
         .filter-btn.apply {
@@ -429,6 +459,7 @@
         .filter-btn.reset {
             background-color: #f3f4f6;
             color: #333;
+            text-decoration: none;
         }
 
         .filter-btn:hover {
@@ -443,6 +474,22 @@
             margin-top: 1.5rem;
         }
 
+        @media (max-width: 768px) {
+            .filter-section {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+                margin: 0 auto;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -451,50 +498,37 @@
 
 <div class="wrapper">
 
-<%--<section class="menu-hero">--%>
-
-<%--    <div class="filter-section">--%>
-<%--        <h2>Filters</h2>--%>
-<%--        <form action="${pageContext.request.contextPath}/menu/filter" method="get">--%>
-<%--            <!-- Filter controls remain the same -->--%>
-<%--        </form>--%>
-<%--    </div>--%>
-
-<%--    <c:if test="${isAdmin or isVendor}">--%>
-<%--        <p><a href="${pageContext.request.contextPath}/menu/add" class="btn">Add New Menu Item</a></p>--%>
-<%--    </c:if>--%>
-
-<%--    <c:if test="${not (isAdmin or isVendor)}">--%>
-<%--        <form action="${pageContext.request.contextPath}/make-order" method="get" style="display:inline;">--%>
-<%--            <button type="submit" class="btn" style="background-color: #2196F3;">Make Order</button>--%>
-<%--        </form>--%>
-<%--    </c:if>--%>
-
-<%--</section>--%>
-
     <section class="menu-hero">
         <div class="hero-content">
+            <button class="filter-toggle" id="filterToggle">
+                <span class="icon-filter"></span>
+            </button>
+
             <h1 class="hero-title">Discover Our Delicious Menu</h1>
             <p class="hero-subtitle">Explore a wide variety of culinary delights prepared with the freshest ingredients</p>
 
             <div class="search-container">
-                <form action="${pageContext.request.contextPath}/menu/search" method="get">
-                    <input type="text" class="search-input" name="query" placeholder="Search for dishes, cuisines, or ingredients...">
+                <form action="${pageContext.request.contextPath}/menu" method="get">
+                    <input type="text" class="search-input" name="query"
+                           placeholder="Search for dishes, cuisines, or ingredients..."
+                           value="${param.query}">
                     <button type="submit" class="search-button">Search</button>
                 </form>
             </div>
 
-            <div class="filter-section">
+            <div class="filter-section" id="filterSection">
                 <h2>Filter Menu Items</h2>
-                <form action="${pageContext.request.contextPath}/menu/filter" method="get" class="filter-form">
+                <form action="${pageContext.request.contextPath}/menu" method="get" class="filter-form">
+                    <input type="hidden" name="query" value="${param.query}">
+
                     <div class="filter-group">
                         <label for="category">Category</label>
                         <select id="category" name="category" class="form-control">
                             <option value="">All Categories</option>
-                            <option value="Appetizer">Appetizers</option>
-                            <option value="Main Course">Main Courses</option>
-                            <option value="Dessert">Desserts</option>
-                            <option value="Beverage">Beverages</option>
+                            <option value="Meals" ${param.category == 'Meals' ? 'selected' : ''}>Meals</option>
+                            <option value="Snacks" ${param.category == 'Snacks' ? 'selected' : ''}>Snacks</option>
+                            <option value="Sweets" ${param.category == 'Sweets' ? 'selected' : ''}>Sweets</option>
+                            <option value="Drinks" ${param.category == 'Drinks' ? 'selected' : ''}>Drinks</option>
                         </select>
                     </div>
 
@@ -502,10 +536,10 @@
                         <label for="price-range">Price Range</label>
                         <select id="price-range" name="price-range" class="form-control">
                             <option value="">Any Price</option>
-                            <option value="0-10">$0 - $10</option>
-                            <option value="10-20">$10 - $20</option>
-                            <option value="20-50">$20 - $50</option>
-                            <option value="50+">$50+</option>
+                            <option value="0-10" ${param['price-range'] == '0-10' ? 'selected' : ''}>$0 - $10</option>
+                            <option value="10-20" ${param['price-range'] == '10-20' ? 'selected' : ''}>$10 - $20</option>
+                            <option value="20-50" ${param['price-range'] == '20-50' ? 'selected' : ''}>$20 - $50</option>
+                            <option value="50+" ${param['price-range'] == '50+' ? 'selected' : ''}>$50+</option>
                         </select>
                     </div>
 
@@ -513,22 +547,22 @@
                         <label for="availability">Availability</label>
                         <select id="availability" name="availability" class="form-control">
                             <option value="">All Items</option>
-                            <option value="available">Available Now</option>
+                            <option value="available" ${param.availability == 'available' ? 'selected' : ''}>Available Now</option>
                         </select>
                     </div>
 
                     <div class="filter-group">
                         <label for="sort">Sort By</label>
                         <select id="sort" name="sort" class="form-control">
-                            <option value="name-asc">Name (A-Z)</option>
-                            <option value="name-desc">Name (Z-A)</option>
-                            <option value="price-asc">Price (Low to High)</option>
-                            <option value="price-desc">Price (High to Low)</option>
+                            <option value="name-asc" ${param.sort == 'name-asc' ? 'selected' : ''}>Name (A-Z)</option>
+                            <option value="name-desc" ${param.sort == 'name-desc' ? 'selected' : ''}>Name (Z-A)</option>
+                            <option value="price-asc" ${param.sort == 'price-asc' ? 'selected' : ''}>Price (Low to High)</option>
+                            <option value="price-desc" ${param.sort == 'price-desc' ? 'selected' : ''}>Price (High to Low)</option>
                         </select>
                     </div>
 
                     <div class="filter-actions">
-                        <button type="reset" class="filter-btn reset">Reset</button>
+                        <a href="${pageContext.request.contextPath}/menu" class="filter-btn reset">Reset</a>
                         <button type="submit" class="filter-btn apply">Apply Filters</button>
                     </div>
                 </form>
@@ -552,82 +586,99 @@
         </div>
     </section>
 
-<section class="menu-container">
-
-    <div class="menu-items">
-        <c:forEach items="${menuItems}" var="item">
-            <div class="menu-item">
-                <div class="image-box">
-                    <c:choose>
-                        <c:when test="${not empty item.foodImage}">
-                            <img src="${pageContext.request.contextPath}/images/${item.foodImage}" alt="${item.foodName}" class="menu-image">
-                        </c:when>
-                        <c:otherwise>
-                            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1470&auto=format&fit=crop" alt="Default food image" class="menu-image">
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-
-                <div class="item-info">
-                    <div class="item-header">
-                        <h3 class="item-name">${item.foodName}</h3>
-                        <span class="item-price">$${item.foodPrice}</span>
+    <section class="menu-container">
+        <div class="menu-items">
+            <c:forEach items="${menuItems}" var="item">
+                <div class="menu-item">
+                    <div class="image-box">
+                        <c:choose>
+                            <c:when test="${not empty item.foodImage}">
+                                <img src="${pageContext.request.contextPath}/images/${item.foodImage}" alt="${item.foodName}" class="menu-image">
+                            </c:when>
+                            <c:otherwise>
+                                <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1470&auto=format&fit=crop" alt="Default food image" class="menu-image">
+                            </c:otherwise>
+                        </c:choose>
                     </div>
 
-                    <c:if test="${isAdmin and not empty item.vendorId}">
-                        <span class="owner-badge">Vendor ID: ${item.vendorId}</span>
-                    </c:if>
-
-                    <div class="hidden-content">
-                        <p class="item-description">${item.foodDescription}</p>
-
-                        <div class="tags-container">
-                            <span class="item-category">${item.foodCategory}</span>
-                            <c:choose>
-                                <c:when test="${item.foodAvailability eq 'Available'}">
-                                    <span class="item-availability available">${item.foodAvailability}</span>
-                                </c:when>
-                                <c:otherwise>
-                                    <span class="item-availability unavailable">${item.foodAvailability}</span>
-                                </c:otherwise>
-                            </c:choose>
+                    <div class="item-info">
+                        <div class="item-header">
+                            <h3 class="item-name">${item.foodName}</h3>
+                            <span class="item-price">$${item.foodPrice}</span>
                         </div>
-                    </div>
 
-                    <div class="actions">
-                        <c:if test="${isAdmin or (isVendor and item.vendorId eq user.userId)}">
-                            <a href="${pageContext.request.contextPath}/menu/edit?food_id=${item.foodId}" class="btn btn-outline">
-                                <span class="btn-icon icon-edit"></span>
-                                Edit
-                            </a>
-                            <form action="${pageContext.request.contextPath}/menu/delete" method="post" style="display:inline;">
-                                <input type="hidden" name="food_id" value="${item.foodId}">
-                                <button type="submit" class="btn btn-danger">
-                                    <span class="btn-icon icon-trash"></span>
-                                    Delete
-                                </button>
-                            </form>
+                        <c:if test="${isAdmin and not empty item.vendorId}">
+                            <span class="owner-badge">Vendor ID: ${item.vendorId}</span>
                         </c:if>
 
-                        <form method="post" action="${pageContext.request.contextPath}/menu" target="hiddenFrame" style="display:inline;">
-                            <input type="hidden" name="food_id" value="${item.foodId}">
-                            <button type="submit" class="btn btn-default">
-                                <span class="btn-icon icon-bag"></span>
-                                Order
-                            </button>
-                        </form>
+                        <div class="hidden-content">
+                            <p class="item-description">${item.foodDescription}</p>
+
+                            <div class="tags-container">
+                                <span class="item-category">${item.foodCategory}</span>
+                                <c:choose>
+                                    <c:when test="${item.foodAvailability eq 'Available'}">
+                                        <span class="item-availability available">${item.foodAvailability}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="item-availability unavailable">${item.foodAvailability}</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <c:if test="${isAdmin or (isVendor and item.vendorId eq user.userId)}">
+                                <a href="${pageContext.request.contextPath}/menu/edit?food_id=${item.foodId}" class="btn btn-outline">
+                                    <span class="btn-icon icon-edit"></span>
+                                    Edit
+                                </a>
+                                <form action="${pageContext.request.contextPath}/menu/delete" method="post" style="display:inline;">
+                                    <input type="hidden" name="food_id" value="${item.foodId}">
+                                    <button type="submit" class="btn btn-danger">
+                                        <span class="btn-icon icon-trash"></span>
+                                        Delete
+                                    </button>
+                                </form>
+                            </c:if>
+
+                            <form method="post" action="${pageContext.request.contextPath}/menu" target="hiddenFrame" style="display:inline;">
+                                <input type="hidden" name="food_id" value="${item.foodId}">
+                                <button type="submit" class="btn btn-default">
+                                    <span class="btn-icon icon-bag"></span>
+                                    Order
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </c:forEach>
-    </div>
-</section>
-
+            </c:forEach>
+        </div>
+    </section>
 </div>
 
 <jsp:include page="/templates/footer.jsp" />
 
 <!-- Hidden iframe for form submission without page refresh -->
 <iframe name="hiddenFrame" style="display:none;"></iframe>
+
+<script>
+    // Toggle filter section visibility
+    document.getElementById('filterToggle').addEventListener('click', function() {
+        document.getElementById('filterSection').classList.toggle('show');
+    });
+
+    // Close filter section when clicking outside
+    document.addEventListener('click', function(event) {
+        const filterSection = document.getElementById('filterSection');
+        const filterToggle = document.getElementById('filterToggle');
+
+        if (filterSection.classList.contains('show') &&
+            !filterSection.contains(event.target) &&
+            !filterToggle.contains(event.target)) {
+            filterSection.classList.remove('show');
+        }
+    });
+</script>
 </body>
 </html>

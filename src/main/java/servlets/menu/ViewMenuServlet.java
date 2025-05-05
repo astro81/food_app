@@ -1,5 +1,6 @@
 package servlets.menu;
 
+import dao.OrderDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,11 +9,13 @@ import jakarta.servlet.http.HttpSession;
 import model.MenuItemModel;
 import model.UserModel;
 import servlets.user.UserConstant;
-import dao.OrderDAO;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(
         name = "ViewMenuServlet",
@@ -32,12 +35,46 @@ public class ViewMenuServlet extends BaseMenuServlet {
             request.setAttribute("isAdmin", isAdmin(request));
             request.setAttribute("isVendor", isVendor(request));
 
+            // Get search query if present
+            String searchQuery = request.getParameter("query");
+
+            // Get filter parameters
+            String category = request.getParameter("category");
+            String priceRange = request.getParameter("price-range");
+            String availability = request.getParameter("availability");
+            String sort = request.getParameter("sort");
+
             if (isVendor(request)) {
                 // Vendors only see their own items
                 menuItems = menuItemDAO.getMenuItemsByVendor(user.getUserId());
             } else {
-                // Admins and customers see all items
-                menuItems = menuItemDAO.getAllMenuItems();
+                // Apply filters if present
+                if (searchQuery != null && !searchQuery.isEmpty()) {
+                    menuItems = menuItemDAO.searchMenuItems(searchQuery);
+                    request.setAttribute("searchQuery", searchQuery);
+                } else if (category != null && !category.isEmpty()) {
+                    menuItems = menuItemDAO.getMenuItemsByCategory(category);
+                    request.setAttribute("selectedCategory", category);
+                } else {
+                    // Admins and customers see all items
+                    menuItems = menuItemDAO.getAllMenuItems();
+                }
+            }
+
+            // Apply additional filters
+            if (priceRange != null && !priceRange.isEmpty()) {
+                menuItems = filterByPriceRange(menuItems, priceRange);
+                request.setAttribute("selectedPriceRange", priceRange);
+            }
+
+            if (availability != null && availability.equals("available")) {
+                menuItems = filterByAvailability(menuItems, "Available");
+                request.setAttribute("selectedAvailability", availability);
+            }
+
+            if (sort != null && !sort.isEmpty()) {
+                menuItems = sortMenuItems(menuItems, sort);
+                request.setAttribute("selectedSort", sort);
             }
 
             request.setAttribute(MenuConstant.ATTR_MENU_ITEMS, menuItems);
@@ -45,6 +82,50 @@ public class ViewMenuServlet extends BaseMenuServlet {
         } catch (SQLException e) {
             handleError(request, response, e);
         }
+    }
+
+    private List<MenuItemModel> filterByPriceRange(List<MenuItemModel> items, String priceRange) {
+        if (priceRange.equals("50+")) {
+            BigDecimal min = new BigDecimal("50");
+            return items.stream()
+                    .filter(item -> item.getFoodPrice().compareTo(min) >= 0)
+                    .collect(Collectors.toList());
+        }
+
+        String[] range = priceRange.split("-");
+        if (range.length == 2) {
+            BigDecimal min = new BigDecimal(range[0]);
+            BigDecimal max = new BigDecimal(range[1]);
+            return items.stream()
+                    .filter(item -> item.getFoodPrice().compareTo(min) >= 0 &&
+                            item.getFoodPrice().compareTo(max) <= 0)
+                    .collect(Collectors.toList());
+        }
+        return items;
+    }
+
+    private List<MenuItemModel> filterByAvailability(List<MenuItemModel> items, String availability) {
+        return items.stream()
+                .filter(item -> availability.equals(item.getFoodAvailability()))
+                .collect(Collectors.toList());
+    }
+
+    private List<MenuItemModel> sortMenuItems(List<MenuItemModel> items, String sortOption) {
+        switch (sortOption) {
+            case "name-asc":
+                items.sort(Comparator.comparing(MenuItemModel::getFoodName));
+                break;
+            case "name-desc":
+                items.sort(Comparator.comparing(MenuItemModel::getFoodName).reversed());
+                break;
+            case "price-asc":
+                items.sort(Comparator.comparing(MenuItemModel::getFoodPrice));
+                break;
+            case "price-desc":
+                items.sort(Comparator.comparing(MenuItemModel::getFoodPrice).reversed());
+                break;
+        }
+        return items;
     }
 
     @Override
