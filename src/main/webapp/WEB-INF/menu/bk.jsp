@@ -4,16 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-
-<%--    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">--%>
-
     <title>Menu Items</title>
     <style>
         /* Reset and base styles */
@@ -21,32 +12,17 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            width: 100%;
-            height: 100%;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding: 20px;
         }
 
-        .wrapper {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .menu-hero {
-            height: 100dvh;
-            width: 100dvw;
-            outline: 1px solid coral;
-        }
-
-        .menu-container {
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -61,8 +37,20 @@
         /* Menu item card styles */
         .menu-items {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: 1fr;
             gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .menu-items {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .menu-item {
@@ -144,17 +132,13 @@
         }
 
         .owner-badge {
-            display: none;
+            display: inline-block;
             background-color: #f3f4f6; /* gray-100 equivalent */
             color: #4b5563; /* gray-600 equivalent */
             font-size: 12px;
             padding: 4px 8px;
             border-radius: 9999px;
             margin-bottom: 8px;
-        }
-
-        .menu-item:hover .owner-badge {
-            display: inline-block;
         }
 
         /* Hidden content that shows on hover */
@@ -287,31 +271,8 @@
     </style>
 </head>
 <body>
-
-<div class="wrapper">
-
-<section class="menu-hero">
-
-    <div class="filter-section">
-        <h2>Filters</h2>
-        <form action="${pageContext.request.contextPath}/menu/filter" method="get">
-            <!-- Filter controls remain the same -->
-        </form>
-    </div>
-
-    <c:if test="${isAdmin or isVendor}">
-        <p><a href="${pageContext.request.contextPath}/menu/add" class="btn">Add New Menu Item</a></p>
-    </c:if>
-
-    <c:if test="${not (isAdmin or isVendor)}">
-        <form action="${pageContext.request.contextPath}/make-order" method="get" style="display:inline;">
-            <button type="submit" class="btn" style="background-color: #2196F3;">Make Order</button>
-        </form>
-    </c:if>
-
-</section>
-
-<section class="menu-container">
+<div class="container">
+    <h1>Our Menu</h1>
 
     <div class="menu-items">
         <c:forEach items="${menuItems}" var="item">
@@ -380,9 +341,8 @@
             </div>
         </c:forEach>
     </div>
-</section>
-
 </div>
+
 <!-- Hidden iframe for form submission without page refresh -->
 <iframe name="hiddenFrame" style="display:none;"></iframe>
 </body>
