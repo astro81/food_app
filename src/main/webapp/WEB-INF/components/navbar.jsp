@@ -85,7 +85,7 @@
 <header>
     <nav class="navbar">
         <div class="nav-logo">
-            <a href="${pageContext.request.contextPath}/" class="nav-title">Food App</a>
+            <a href="${pageContext.request.contextPath}/" class="nav-title">OrderNow</a>
         </div>
 
         <div class="nav-links">

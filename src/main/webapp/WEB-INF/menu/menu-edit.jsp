@@ -207,9 +207,9 @@
 <div class="form-container">
     <h1>${empty menuItem ? 'Add' : 'Edit'} Menu Item</h1>
 
-    <c:if test="${not empty NOTIFICATION}">
-        <div class="notification">${NOTIFICATION}</div>
-    </c:if>
+<%--    <c:if test="${not empty NOTIFICATION}">--%>
+<%--        <div class="notification">${NOTIFICATION}</div>--%>
+<%--    </c:if>--%>
 
     <form action="${pageContext.request.contextPath}/menu/${empty menuItem ? 'add' : 'edit'}" method="post" enctype="multipart/form-data">
         <c:if test="${not empty menuItem}">
